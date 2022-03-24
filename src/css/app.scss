@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+$tff-hd: 'Bebas Neue', sans-serif;
+$tff-body: 'Open Sans', sans-serif;
+$accent1: maroon;
+$accent1-hover:  lighten(maroon, 5%);
+
+html {
+  font-size: 100%;
+}
+
+body {
+  background: hsl(352, 80%, 9%);
+  font-family: $tff-body;
+  font-weight: 400;
+  line-height: 1.75;
+  color: whitesmoke;
+}
+
+p {
+    font-size: 1.7rem;
+}
+
+button {
+    font-size: 3rem;
+    padding: 0.25em 0.5em;
+    line-height: 0.5;
+}
+
+h1, h2, h3, h4, h5 {
+  margin: 3rem 0 1.38rem;
+  font-family: $tff-hd;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 3.052rem;
+}
+
+h2 {font-size: 2.441rem;}
+
+h3 {font-size: 1.953rem;}
+
+h4 {font-size: 1.563rem;}
+
+h5 {font-size: 1.25rem;}
+
+small, .text_small {font-size: 0.8rem;}
+
+label, select {font-family: $tff-body;}
+
+.cardCont {
+  display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  margin: 0 auto;
+  justify-content: center;
+
+  gap: 2%;
+}
+
+.card {
+  flex: 0 0 15%;
+  margin-bottom: 50px;
+  min-width: 250px;
+
+  &-id {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 10rem;
+    padding: 0;
+    margin: 0;
+    opacity: 0.05;
+    z-index: -1;
+    line-height: 0.7;
+  }
+  
+  &-name {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 15px 0 0 0;
+    width: 97%;
+    padding: 0;
+    text-align: center;
+    font-size: 3rem;
+    line-height: 1;
+    z-index: -1;
+    opacity: 0.3;
+  }
+
+  &-img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    margin-bottom: 50px;
+  }
+}
+
+.pagination {
+
+  width: 90%;
+  margin: 0 auto 50px auto;
+  display: flex;
+  justify-content: center;
+  gap: 10%;
+
+  &-searchgroup {
+
+    input {
+      font-size: 1.2rem;
+      padding: 0.35em 0.5em;
+      margin-right: 20px;
+    };
+  }
+
+  &-btn {
+      display: inline-block;
+      text-align: center;
+      border-radius: 5px;
+      text-decoration: none;
+      border: 0px;
+
+      font-family: $tff-body;
+      background-color: $accent1;
+      color: whitesmoke;
+      font-size: 1.1rem;
+      padding: 0.75em 1.25em;
+      font-weight: 600;
+      cursor: pointer;
+
+      transition: background-color 250ms ease;
+
+      &:hover {
+          background-color: $accent1-hover;
+      }
+  }
+
+  &-label, &-select {
+    font-size: 1.1rem;
+  }
+
+  &-select {
+    padding: 0.35em 0.5em;
+    background-color: rgba(white, 0.5);
+  }
+}
+
+
+
+
+
+
+
+
+// Flip Card Styles
+
+.flip-card {
+  // background-color: transparent;
+  width: 300px;
+  min-height: 400px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+  background: rgba(white, 0.1);
+  border-radius: 30px 0px;
+  border: 1px solid rgba(white, 0.1);
+}
+
+.flip-card-front {
+  // style
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+
+  .typeBox {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    
+    &-type {
+      padding: 0.5em 1em;
+      border-radius: 15px;
+    }
+  }
+
+  table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+
+    tr:first-child {
+      border-bottom: 1px solid whitesmoke;
+    }
+
+    th, td {
+      font-size: 1.3rem;
+      font-weight: 300;
+      padding: 0.2em;
+    }
+
+
+  }
+}
+
+// pkmn type colors
+$types : (
+  normal: #aa9,
+  fire: #f42,
+  water: #39f,
+  electric: #fc3,
+  grass: #7c5,
+  ice: #6cf,
+  fighting: #b54,
+  poison: #a59,
+  ground: #db5,
+  flying: #89f,
+  psychic: #f59,
+  bug: #ab2,
+  rock: #ba6,
+  ghost: #66b,
+  dragon: #76e,
+  dark: #754,
+  steel: #aab,
+  fairy: #e9e,
+);
+
+@each $type, $color in $types {
+  .type-#{$type} {
+    background-color: #{$color};
+  }
+}
