@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 
-function Pagination({onClear, onSearch, itemCount, setitemCount, setClearList}) {
+function Pagination({onClear, onSearch, itemCount, setItemCount, setClearList}) {
 
     const searchNameFieldRef = useRef();
     const [searchTerm, setSearchTerm] = useState('');
@@ -31,18 +31,18 @@ function Pagination({onClear, onSearch, itemCount, setitemCount, setClearList}) 
             
         <label 
         className='pagination-label'
-        >Rows per page:
+        >Items per page:
             <select
             className='pagination-select'
             value={itemCount}
             onChange={e => {
+                setItemCount(e.target.value);
                 setClearList(true);
-                setitemCount(e.target.value);
             }}
             style={{
                 marginLeft: '30px',
             }}>
-                {[2,3,4,5,6,7].map(i => <option key={`dropdown_items_${(i*6)}`} value={`${(i*6)}`}>{i}</option>)}
+                {[2,3,4,5,6,7].map(i => <option key={`dropdown_items_${(i*6)}`} value={`${(i*6)}`}>{i*6}</option>)}
             </select>
         </label>
         <div

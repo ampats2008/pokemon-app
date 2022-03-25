@@ -3,169 +3,138 @@ import axios from 'axios';
 import PokemonList from './components/pkmn-list';
 import Pagination from './components/pagination';
 
+import { useGetPkmnNames } from './components/hooks/useGetPkmnNames';
+// import { useToggle } from './components/hooks/useToggle';
+import { useScrolledToBottom } from './components/hooks/useScrolledToBottom';
+
+import { getPkmnEndpointList } from './components/functions/getPkmnEndpointByName';
+
 //Tutorial link: https://youtu.be/o3ZUc7zH8BE
 
 function App() {
 
   const [pkmn, setPkmn] = useState([]);
   const [clearList, setClearList] = useState(false);
-  const [itemCount, setitemCount] = useState('12');
-  const [nextPageUrl, setNextPageUrl] = useState(`https://pokeapi.co/api/v2/pokemon?offset=${itemCount}&limit=${itemCount}`)
-  const [currPageUrl, setCurrPageUrl] = useState(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${itemCount}`)
+  const [itemCount, setItemCount] = useState('12');
+
+
   const [prevPageUrl, setPrevPageUrl] = useState(null)
+  const [currPageUrl, setCurrPageUrl] = useState(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${itemCount}`)
+  const [nextPageUrl, setNextPageUrl] = useState(`https://pokeapi.co/api/v2/pokemon?offset=${itemCount}&limit=${itemCount}`)
 
   // allows me to execute a useEffect hook only after first render
   const didMountRef = useRef(false);
 
-  // state for search feature
-  const [pkmnSearched, setPkmnSearched] = useState([]);
-  const [pkmnMasterNameList, setPkmnMasterNameList] = useState([]);
-
   // state for pkmn list load status
   const [loaded, setLoaded] = useState(false); // wait until pkmn card info is loaded to show the list
 
+
+  // async call to api for first time
+  // set prev page, curr page, and next page
+  const getPkmnEndpoint = async (pageUrl) => {
+    await axios.get(pageUrl)
+      .then(res => {
+        // do the following with the response:
+        let newPkmn = res.data.results;
+
+        setPkmn(prevPkmn => {
+          if ((prevPkmn.length <= 0) || clearList) {
+            setClearList(false);
+            return newPkmn;
+          } else {
+            return [...pkmn, ...newPkmn];
+          }
+        });
+
+        setNextPageUrl(res.data.next);
+        setPrevPageUrl(res.data.previous);
+      });
+  }
+
   // initialize with call to api
   useEffect(() => {
-      axios.get(currPageUrl)
-      .then(res => {
-        let newPkmn = res.data.results;
-        console.log(res.data.results);
+    getPkmnEndpoint(currPageUrl);
+  }, [])
 
-        if ((Object.keys(pkmn).length <= 0) || (clearList)) {
-          setPkmn(newPkmn);
-          setClearList(false);
-        } else {
-          setPkmn([...pkmn, ...newPkmn]);
-        }
+  // Client-side Search feature
 
-        if (didMountRef.current) {
-          setNextPageUrl(res.data.next);
-          setPrevPageUrl(res.data.previous);
-        } else didMountRef.current = true;
-      });
-  }, [currPageUrl, pkmnSearched])
+  // custom hook returns list of all pkmn names
+  const pkmnMasterNameList = useGetPkmnNames();
+
+  // onClick search button handler
+  const handleSearch = (searchTerm) => {
+      let foundNames = [];
+      if (searchTerm != '') {
+        foundNames = pkmnMasterNameList.sort().filter( name => {
+          if (name.includes(searchTerm)) { 
+            return name; 
+          }
+        })
+      } else {
+        setClearList(true);
+      }
+
+      if (foundNames.length > 0 ) {  
+
+        getPkmnEndpointList(foundNames).then( res => { setPkmn(res) });
+
+      } else {
+        // show message to user that there were no records found
+        alert('Sorry, there were no records found.')
+      }
+  }
 
   useEffect(() => {
-    setCurrPageUrl(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${itemCount}`)
-  }, [itemCount]);
+    if (didMountRef.current) {
 
+      if (clearList) {
+        console.log('clearList is true');
+        setPkmn([]);
+        getPkmnEndpoint(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${itemCount}`);
+        setCurrPageUrl(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${itemCount}`);
+      }
+
+    } else didMountRef.current = true;     
+    
+  }, [clearList]);
+
+  // onClick clear grid button handler
   const handleClearGrid = () => {
-    if (prevPageUrl !== null) {
+    if ((prevPageUrl !== null) || (pkmn.length > 0)) {
       setClearList(true);
-      setPkmnSearched([])
-      setCurrPageUrl(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${itemCount}`);
     } else {
-      console.log("Can't go back, This is the first list of pokemon!")
-    } 
-  }
-
-  // Infinite Scroll Code (custom hook)
-  const useScrolledToBottom = (options) => {
-
-    const endOfScrollRef = useRef(null);
-    const [needMoreItems, setNeedMoreItems] = useState(false);
-
-    const handleObserver = (entries) => {
-      const [ entry ] = entries;
-      setNeedMoreItems(entry.isIntersecting);
+      console.log("Can't go back further! On first page.");
     }
-
-    useEffect(() => {
-      const observer = new IntersectionObserver(handleObserver, options);
-
-      if (endOfScrollRef.current) { observer.observe(endOfScrollRef.current); }
-
-      return () => {
-        if (endOfScrollRef.current) { observer.unobserve(endOfScrollRef.current); }
-      };
-    }, [endOfScrollRef, options]);
-
-    return [endOfScrollRef, needMoreItems];
   }
+
+  // Infinite Scroll custom hook
+    // returns:
+    // 1. ref to the target obj
+    // 2. bool val that gets set to true every time the target obj enters the viewport
   const [endOfScrollRef, needMoreItems] = useScrolledToBottom({
     root: null,
     rootMargin: "0px",
     threshold: 1.0
   });
+
   // Make call for more records when page is scrolled to bottom
-  useEffect(() => {
-    // wait for PkmnList to load before doing anything
-      
-      if (needMoreItems) {
-        if (nextPageUrl !== null) {
-          setCurrPageUrl(nextPageUrl);
-        } else {
-          console.log("Can't go forward, This is the last list of pokemon!")
-        }
-      }
+  // useEffect(() => {
+  //     if (didMountRef.current) {
 
-  }, [needMoreItems]);
+  //       if (needMoreItems) {
+  //         console.log('i need more items');
 
+  //         if (nextPageUrl !== null) {
 
-  // Client-side Search feature
-  const getPkmnMasterNameList = async () => {
-    // get all pkmn names
-    axios.get(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${1126}`)
-      .then(res => {
-        let data = [];
-        res.data.results.map((result) => {
-          data.push(result['name'])
-        });
-        setPkmnMasterNameList(data);
-      });
-  }
+  //           getPkmnEndpoint(nextPageUrl);
 
-  // fetch master pkmn name list on mount
-  useEffect(() => {
-    getPkmnMasterNameList();
-  }, []);
+  //         } else {
+  //           console.log("Can't go forward, This is the last list of pokemon!")
+  //         }
+  //       }
 
-  // search helper
-  const searchNameList = (searchTerm) => {
-    let returnedNames = [];
-    pkmnMasterNameList.map(name => {
-      if (name.includes(searchTerm)) {
-        returnedNames.push(name);
-      }
-    })
-    return returnedNames;
-  }
-
-
-  const handleSearch = (searchTerm) => {
-    if (pkmnMasterNameList.length >= 0) {
-
-      let foundNames = [];
-      if (searchTerm != '') { 
-        foundNames = searchNameList(searchTerm); 
-      }
-
-      if (foundNames.length > 0 ) {
-        let masterRes = [];
-        // call for all resources from searchedNames
-        foundNames.map(name => {
-          // get all pkmn names
-          axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
-          .then(res => {
-            // add each to the masterResponse list
-            // need format to match the format of the other calls, this is kinda hacky
-            masterRes.push({
-              name: res.data.name,
-              url: `https://pokeapi.co/api/v2/pokemon/${res.data.id}/`,
-            })
-          });
-        });
-
-        setPkmnSearched(masterRes);
-
-      } else {
-        // show message to user that there were no records found
-        alert('Sorry, there were no records found.')
-        setPkmnSearched([]) // reset search
-      }
-
-    }
-  }
+  //     } else didMountRef.current = true;
+  // }, [needMoreItems]);
 
   return (
     <>
@@ -178,12 +147,10 @@ function App() {
         onClear={handleClearGrid}
         onSearch={handleSearch}
         itemCount={itemCount}
-        setitemCount={setitemCount}
+        setItemCount={setItemCount}
         setClearList={setClearList}
       />
-      {(pkmnSearched.length <= 0) ? 
-      <PokemonList pkmn={pkmn} setLoaded={setLoaded} loaded={loaded} /> : 
-      <PokemonList pkmn={pkmnSearched}  setLoaded={setLoaded} loaded={loaded} />}
+      <PokemonList pkmn={pkmn} setLoaded={setLoaded} loaded={loaded} />
       
       <div id="endOfScrollableArea" ref={endOfScrollRef}></div>
     </>

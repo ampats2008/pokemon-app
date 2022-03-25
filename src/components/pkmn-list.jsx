@@ -3,14 +3,14 @@ import PkmnCard from './pkmn-card';
 
 function PokemonList({ pkmn, setLoaded, loaded}) {
 
-    const [loadedCards, setLoadedCards] = useState([])
+    const [loadedCards, setLoadedCards] = useState([]);
 
     useEffect(() => {
         // initialize pkmnlist whenever you receive a new pkmn obj from app
-        let cards = [];
-        cards = buildCards();
-        setLoadedCards(cards);
+        let res = buildCards();
+        setLoadedCards(res);
         setLoaded(true);
+        
     }, [pkmn]);
 
     const buildCards = () => {

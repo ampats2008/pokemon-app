@@ -11,8 +11,11 @@ const PkmnCard = ({obj}) => {
 
     const [loaded, setLoaded] = useState(false);
 
-    const handlePkmnObjResponse = (data) => {
-        let {sprites, types, height, weight} = data;
+    const getPkmnByID = async () => {
+        // use id to call for pkmn's img
+        let res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}/`);
+        
+        let {sprites, types, height, weight} = res.data;
         // assign response to state
         setPkmnObj({
             img: sprites.other['official-artwork'].front_default,
@@ -21,12 +24,11 @@ const PkmnCard = ({obj}) => {
             weight: weight
         });
         setLoaded(true);
+        
     }
 
     useEffect(() => {
-        // use id to call for pkmn's img
-        axios.get(`https://pokeapi.co/api/v2/pokemon/${id}/`).then(res => handlePkmnObjResponse(res.data));
-        setLoaded(false);
+        getPkmnByID();        
     }, [])
 
     // Rounding helper function
