@@ -48,6 +48,12 @@ function App() {
 
         setNextPageUrl(res.data.next);
         setPrevPageUrl(res.data.previous);
+
+        if (!enabledEndofScrollRef) {
+          // if infinite scrolling is off, enable it.
+          setEnabledEndofScrollRef(true); 
+        }
+
       });
   }
 
@@ -60,6 +66,8 @@ function App() {
 
   // custom hook returns list of all pkmn names
   const pkmnMasterNameList = useGetPkmnNames();
+
+  const [enabledEndofScrollRef, setEnabledEndofScrollRef] = useState(false); // this state isn't working as expected yet
 
   // onClick search button handler
   const handleSearch = (searchTerm) => {
@@ -76,7 +84,11 @@ function App() {
 
       if (foundNames.length > 0 ) {  
 
-        getPkmnEndpointList(foundNames).then( res => { setPkmn(res) });
+        getPkmnEndpointList(foundNames).then( res => {
+          // toggle
+          setPkmn(res);
+          setEnabledEndofScrollRef(false); // disable infinite scroll
+        });
 
       } else {
         // show message to user that there were no records found
@@ -117,26 +129,24 @@ function App() {
     threshold: 1.0
   });
 
-  // need to fix this still **
-  
   // Make call for more records when page is scrolled to bottom
-  // useEffect(() => {
-  //     if (didMountRef.current) {
+  useEffect(() => {
+      if (didMountRef.current) {
 
-  //       if (needMoreItems) {
-  //         console.log('i need more items');
+        if (enabledEndofScrollRef && needMoreItems) {
+          console.log('i need more items and im allowed to get more items');
 
-  //         if (nextPageUrl !== null) {
+          if (nextPageUrl !== null) {
 
-  //           getPkmnEndpoint(nextPageUrl);
+            getPkmnEndpoint(nextPageUrl);
 
-  //         } else {
-  //           console.log("Can't go forward, This is the last list of pokemon!")
-  //         }
-  //       }
+          } else {
+            console.log("Can't go forward, This is the last list of pokemon!")
+          }
+        }
 
-  //     } else didMountRef.current = true;
-  // }, [needMoreItems]);
+      } else didMountRef.current = true;
+  }, [needMoreItems]);
 
   return (
     <>
@@ -153,8 +163,8 @@ function App() {
         setClearList={setClearList}
       />
       <PokemonList pkmn={pkmn} setLoaded={setLoaded} loaded={loaded} />
-      
-      <div id="endOfScrollableArea" ref={endOfScrollRef}></div>
+
+      <div id="endOfScrollableArea" ref={endOfScrollRef} style={(enabledEndofScrollRef) ? {display: 'block'} : {display: 'none'}}></div>
     </>
   );
 }
