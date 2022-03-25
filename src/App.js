@@ -117,6 +117,8 @@ function App() {
     threshold: 1.0
   });
 
+  // need to fix this still **
+  
   // Make call for more records when page is scrolled to bottom
   // useEffect(() => {
   //     if (didMountRef.current) {
