@@ -21,7 +21,7 @@ function Pagination({handleClearGrid, onSearch, itemCount, setItemCount}) {
 
         return(
             <>
-                <button className='pagination-btn' onClick={handleClick}>{children}</button>
+                <button className='btn-primary' onClick={handleClick}>{children}</button>
             </>
         );
     }
