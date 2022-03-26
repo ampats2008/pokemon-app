@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, forwardRef} from 'react';
 import axios from 'axios';
 
-const PkmnCard = ({obj}) => {
+const PkmnCard = ({obj}, ref) => {
 
     // set card vars
     const id = obj.url.substring((obj.url.indexOf('/', obj.url.indexOf('pokemon')) + 1), obj.url.lastIndexOf('/')); // parse obj.url for pokedex id
@@ -39,7 +39,7 @@ const PkmnCard = ({obj}) => {
     return(
         <>
         {(loaded) &&
-        <div className='card flip-card'>
+        <div className='card flip-card' ref={ref}>
             <div className="flip-card-inner">
 
                 <div className="flip-card-front">
@@ -83,4 +83,4 @@ const PkmnCard = ({obj}) => {
     );
 }
 
-export default PkmnCard;
+export default forwardRef(PkmnCard);

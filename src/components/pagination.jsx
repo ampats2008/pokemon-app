@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 
-function Pagination({onClear, onSearch, itemCount, setItemCount, setClearList}) {
+function Pagination({handleClearGrid, onSearch, itemCount, setItemCount}) {
 
     const searchNameFieldRef = useRef();
     const [searchTerm, setSearchTerm] = useState('');
@@ -36,8 +36,7 @@ function Pagination({onClear, onSearch, itemCount, setItemCount, setClearList}) 
             className='pagination-select'
             value={itemCount}
             onChange={e => {
-                setItemCount(e.target.value);
-                setClearList(true);
+                handleClearGrid(e.target.value);
             }}
             style={{
                 marginLeft: '30px',
@@ -51,7 +50,7 @@ function Pagination({onClear, onSearch, itemCount, setItemCount, setClearList}) 
             <Button onSearch={scrapeSearchTerm} type={'search'}>🔍</Button>
         </div>
 
-        <Button onClear={onClear} type={'clear'}>clear grid</Button>
+        <Button onClear={handleClearGrid} type={'clear'}>clear grid</Button>
         </div>
      );
 }
