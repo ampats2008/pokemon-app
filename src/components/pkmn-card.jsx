@@ -142,6 +142,7 @@ const PkmnCard = ({obj}, ref) => {
     }
 
     const printTypes = () => {
+
         return(
             <>
             {pkmnCard.types.map(typeObj => 

@@ -241,6 +241,13 @@ label, select {font-family: $tff-body;}
     border-radius: 15px;
     text-transform: capitalize;
   }
+
+  &-matchups {
+    justify-content: start;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-left: 20px;
+  }
 }
 
 .modal {
@@ -276,7 +283,7 @@ label, select {font-family: $tff-body;}
     'art art art .. tabs tabs tabs tabs '
     'evo evo evo .. desc desc desc desc '
     ;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(3, 1fr) 30px repeat(4, 1fr);
     grid-template-rows: min-content min-content 175px;
     gap: 20px 0px;
     
@@ -319,7 +326,7 @@ label, select {font-family: $tff-body;}
           font-size: 1.5rem;
           letter-spacing: 2px;
           font-family: $tff-body;
-          text-transform: lowercase;
+          text-transform: capitalize;
           text-align: right;
           color: rgb(200, 200, 200);
         }
@@ -402,6 +409,19 @@ label, select {font-family: $tff-body;}
           transform-origin: center center;
           transform: translateX(-50%) translateY(-50%) scale(0.8);
         }
+
+
+        &::before {
+            content: '\276F';
+            position: absolute;
+            right: 0;
+            transform: translateX(3px);
+            color: rgba(white, 0.3);
+        }
+
+        &:last-child::before {
+            content: none;
+        }
       }
       
     }
@@ -419,13 +439,60 @@ label, select {font-family: $tff-body;}
 
     &-tabs {
       grid-area: tabs;
-      background-color: rgba(red, 0.3);
+      // border: 1px solid rgba(red, 0.3);
+      background-color: rgba(darken(hsl(352, 80%, 9%), 0%), 0.9);
+      border-radius: 5px 20px;
+      padding: 30px 40px;
+
+      &-nav {
+        display: flex;
+        gap: 5%;
+        border-bottom: 1px solid rgba(white, 0.5);
+        margin-bottom: 10px;
+      }
 
     }
+  }
+}
 
+
+// modal tabs component styles
+.tab {
+  font-family: $tff-body;
+  font-size: 1.1rem;
+  // letter-spacing: 2px;
+  text-transform: capitalize;
+  flex: 1;
+  padding: 0.8em 0em;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  color: rgba(white, 0.5);
+  transition: color 250ms ease-in-out, border 250ms ease-in-out;
+
+  &:hover {
+    border-bottom: 1px solid rgba(white, 0.9);
+    color: rgba(white, 0.9);
+  }
+}
+
+.tab-active {
+  border-bottom: 1px solid rgba(white, 0.9);
+  color: rgba(white, 0.9);
+}
+
+.modal-content-tabs-panel {
+
+  .typematchup-sec {
+    h3 {
+      margin: 30px 0 10px 0;
+    }
 
   }
 }
+
+
 
 .overflowY-disabled {
   overflow-y: hidden;
@@ -455,6 +522,6 @@ $types : (
 
 @each $type, $color in $types {
   .type-#{$type} {
-    background-color: #{$color};
+    background-color: #{desaturate($color, 10%)};
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { ModalTabs } from "./pkmn-card-modal-tabs";
 
 // Modal Component
 export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, printTypes}) => {
@@ -77,9 +78,7 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, printTypes
                 </div>
 
                 <div className="modal-content-tabs">
-                    
-                   
-
+                   <ModalTabs types={types} />
                 </div>
 
 
