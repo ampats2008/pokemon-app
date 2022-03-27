@@ -18,7 +18,7 @@ body {
 }
 
 p {
-    font-size: 1.7rem;
+    font-size: 1.3rem;
 }
 
 button {
@@ -194,6 +194,10 @@ label, select {font-family: $tff-body;}
   display: flex;
   flex-direction: column;
   justify-content: end;
+
+   // this allows the user to click the learn more button on flip-card-back
+   // instead of highlighting the text on flip-card-front
+  pointer-events: none;
 }
 
 .flip-card-back {
@@ -204,15 +208,8 @@ label, select {font-family: $tff-body;}
   justify-content: space-evenly;
   align-items: center;
 
-  .typeBox {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    
-    &-type {
-      padding: 0.5em 1em;
-      border-radius: 15px;
-    }
+  p {
+    margin: 0;
   }
 
   table {
@@ -234,6 +231,18 @@ label, select {font-family: $tff-body;}
   }
 }
 
+.typeBox {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  
+  &-type {
+    padding: 0.5em 1em;
+    border-radius: 15px;
+    text-transform: capitalize;
+  }
+}
+
 .modal {
   position: fixed;
   width: 100%;
@@ -252,9 +261,169 @@ label, select {font-family: $tff-body;}
 
 
   &-content {
+    //box styles
     margin: 80px 0;
     width: 70%;
-    border: 1px solid red;
+    height: min-content;
+    background: rgba(lighten(hsl(352, 80%, 9%), 5%), 0.9);
+    border-radius: 0px 50px;
+    border: 1px solid rgba(white, 0.1);
+
+    //grid styles
+    display: grid;
+    grid-template-areas:
+    'name name name name .. .. .. type'
+    'art art art .. tabs tabs tabs tabs '
+    'evo evo evo .. desc desc desc desc '
+    ;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: min-content min-content 175px;
+    gap: 20px 0px;
+    
+    padding: 30px;
+
+    &-typeBox {
+      grid-area: type;
+      display: flex;
+      align-items: center;
+    }
+
+    &-name {
+      grid-area: name;
+      // styles set so that content-name displays on top of decoration-name
+      
+      &-heading {
+        position: relative;
+        z-index: 1;
+        width: max-content;
+
+        // pokedex number
+        &-id { 
+          color: lighten(rgba($accent1, 0.4), 50%);
+        }
+
+        // pokemon name
+        h4 {
+          // border: 1px solid red;
+          font-size: 5rem;
+          margin: 0;
+          position: relative;
+          z-index: 1;
+          margin-right: 30px;
+        }
+
+        // genus heading
+        &-genus {
+          margin: 0 30px 0 0;
+          padding: 0 0 10px 0;
+          font-size: 1.5rem;
+          letter-spacing: 2px;
+          font-family: $tff-body;
+          text-transform: lowercase;
+          text-align: right;
+          color: rgb(200, 200, 200);
+        }
+
+        // decorative black box
+        &::after {
+          content:"";
+          background: black;
+          transform: translateX(-30px);
+          position: absolute;
+          clip-path: polygon(0 0, 100% 0, 88% 100%, 0% 100%);
+          width: 130%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          z-index: -1;
+        }
+      }
+      
+    }
+
+    &-img {
+      grid-area: art;
+      position: relative;
+      max-height: 520px;
+
+      img {
+        display: block;
+        position: relative;  // allows z-index to function
+        z-index: 1;
+        max-height: 475px;
+        margin: 0 auto;
+      }
+
+      &-shadow {
+        transform: translateY(-100px);
+        height: 140px;
+        border-radius: 50%;
+        margin: 0 auto;
+        width: 90%;
+        background-color: rgba(black, 0.5);
+        position: relative; // allows z-index to function
+        z-index: 0;
+        filter: blur(20px);
+      }
+
+    }
+
+    &-evo {
+      grid-area: evo;
+      height: 175px;
+
+      display: flex;
+      justify-content: space-around;
+
+      &-sprite {
+        width: calc((1/3)*100%);
+        display: grid;
+        place-items: center;
+        position: relative;
+        z-index: 1;
+        
+        img {
+          transform: scale(1.3);
+          transform-origin: center center;
+          max-width: 100%;
+        }
+
+        // decorative circles (for highlighting the selected pkmn)
+        &::after {
+          content: '';
+          background-color: var(--modal-sprite-bgcolor);
+          position: absolute;
+          aspect-ratio: 1 / 1;
+          width: 100%;
+          top: 50%;
+          left: 50%;
+          z-index: -1;
+          border-radius: 50%;
+          transform-origin: center center;
+          transform: translateX(-50%) translateY(-50%) scale(0.8);
+        }
+      }
+      
+    }
+
+    &-desc {
+      grid-area: desc;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      p {
+        margin: 0;
+      }
+    }
+
+    &-tabs {
+      grid-area: tabs;
+      background-color: rgba(red, 0.3);
+
+    }
+
+
   }
 }
 

@@ -1,7 +1,9 @@
 import React, {useState, useEffect, forwardRef} from 'react';
 import axios from 'axios';
 import { useToggle } from './hooks/useToggle';
+import { PkmnCardModal } from './pkmn-card-modal';
 
+// Note: modal component below the card component
 const PkmnCard = ({obj}, ref) => {
 
     // parse obj.url for pokedex id: between two fwd slashes at end of url --> /id/
@@ -10,12 +12,13 @@ const PkmnCard = ({obj}, ref) => {
     
     const id = url.match(/(?<=\/)[0-9]+(?=\/)/g); // id is displayed on card and used to retrieve record
 
-    const [pkmnObj, setPkmnObj] = useState({
+    const [pkmnCard, setPkmnCard] = useState({
         artwork: null, 
         types: [],
         height: null,
         weight: null,
         description: '',
+        genus: '',
         babyForm: null,
         middleForm: null,
         finalEvolution: null,
@@ -29,10 +32,10 @@ const PkmnCard = ({obj}, ref) => {
         return res.data;
     }
 
-    const getPkmnSpecies = async () => {
+    const getPkmnSpecies = async (url) => {
         // call for species data
-        let res = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${id}/`);
-        return res.data;
+        let res = await axios.get(url);
+        return res.data; 
     }
 
     const getPkmnEvoChain = async (evolURL) => {
@@ -55,18 +58,43 @@ const PkmnCard = ({obj}, ref) => {
     const getPkmnGifSpriteByName = async (name) => {
         let res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}/`);
         let spriteGif = res.data.sprites.versions['generation-v']['black-white'].animated.front_default;
+        
+        if (spriteGif === null) { 
+            // if an animated sprite doesn't exist for a pkmn, return the default one instead.
+            spriteGif = res.data.sprites.front_default
+        }
+
         return spriteGif;
     }
 
     const getPkmnObj = async () => {
         
-        let {sprites, types, height, weight} = await getPkmnChars();
+        let {sprites, types, height, weight, species} = await getPkmnChars();
 
-        let species = await getPkmnSpecies();
+        // call for species data
+        let speciesRes = await getPkmnSpecies(species.url);
 
         // select data from species resource:
-        let description = await species.flavor_text_entries[10].flavor_text;
-        let evoURL = await species.evolution_chain.url; // use evolution-chain URL to get the full evo chain for this pkmn
+
+        // filter descriptions to english only and sort alphabetically by game version:
+        let descriptions = await speciesRes.flavor_text_entries.filter(entryObj => entryObj.language.name === 'en').sort((a, b) => {
+            var textA = a?.version?.name.toUpperCase();
+            var textB = b?.version?.name.toUpperCase();
+            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+        });
+
+        // pick a flavor text entry, prefer gen 4 games:
+        let description = await descriptions.sort().find( entryObj => 
+            ['platinum', 'diamond', 'pearl', 'sword', 'shield', 'sun', 'moon', 'x', 'y'].includes(entryObj.version.name));
+        
+        // this string will be set to description in pkmnObj:
+        description = description.flavor_text;
+        
+        // filter "genera" for english only ("the blank pokemon")**
+        let genera = await speciesRes.genera.filter(entryObj => entryObj.language.name.toLowerCase() === 'en');
+        
+        // **this call could wait until the modal is opened.
+        let evoURL = await speciesRes.evolution_chain.url; // use evolution-chain URL to get the full evo chain for this pkmn
 
         // call for evo chain
         let evoChain = await getPkmnEvoChain(evoURL);
@@ -81,12 +109,13 @@ const PkmnCard = ({obj}, ref) => {
         })
 
         // assign all api responses to state
-        setPkmnObj({
+        setPkmnCard({
             artwork: sprites.other['official-artwork'].front_default,
             types,
             height,
             weight,
             description,
+            genus: genera[0].genus,
             babyForm,
             middleForm,
             finalEvolution
@@ -112,37 +141,20 @@ const PkmnCard = ({obj}, ref) => {
         toggleModal();                                          // toggle modal show/hide state
     }
 
-    const PkmnCardModal = ({name, pkmnObj, handleModalToggle}) => {
-
-        // deconstruct pkmnObj
-        let {
-            artwork,
-            types,
-            height,
-            weight,
-            description,
-            babyForm,
-            middleForm,
-            finalEvolution
-        } = pkmnObj;
-
-        useEffect(()=>{
-            console.log(`modal for ${name} open`);
-
-            return(() => {
-                console.log(`modal for ${name} closing`);
-            })
-        }, [])
-
-        return(<>
-            <div className="modal" onClick={e => handleModalToggle()}>
-                <div className="modal-content" onClick={e => e.stopPropagation()}>
-                    <h1>{name}</h1>
-
-                </div>
-            </div>
-        </>);
-
+    const printTypes = () => {
+        return(
+            <>
+            {pkmnCard.types.map(typeObj => 
+            <span 
+            key={`${id}-${name}_type-${typeObj.type.name}`} 
+            className={`typeBox-type type-${typeObj.type.name}`} 
+            style={
+                // increase contrast of text for certain pkmn types
+                (['electric', 'ice', 'fairy', 'grass', 'ground', 'bug'].includes(typeObj.type.name.toLowerCase())) ? {color: '#363535'} : {}}
+                >{typeObj.type.name}
+            </span>)}
+            </>
+        );
     }
 
     return(
@@ -154,33 +166,26 @@ const PkmnCard = ({obj}, ref) => {
                 <div className="flip-card-front">
                     <h4 className='card-name' >{name.toUpperCase()}</h4>
                     <h1 className='card-id' >{id}</h1>
-                    <img className='card-img' src={pkmnObj.artwork} alt={`official artwork for ${name}`} />
+                    <img className='card-img' src={pkmnCard.artwork} alt={`official artwork for ${name}`} />
                 </div>
 
                 <div className="flip-card-back">
 
+                    <p>The {pkmnCard.genus}</p>
+
                     <div className='typeBox'>
-                        {
-                        pkmnObj.types.map(typeObj => 
-                            <span 
-                            key={`${id}-${name}_type-${typeObj.type.name}`} 
-                            className={`typeBox-type type-${typeObj.type.name}`} 
-                            style={
-                                // increase contrast of text for certain pkmn types
-                                (['electric', 'ice', 'fairy', 'grass'].includes(typeObj.type.name.toLowerCase())) ? {color: '#363535'} : {}}
-                                >{typeObj.type.name}
-                            </span>)}
+                        {printTypes()}
                     </div>
 
                     <table>
                         <tbody>                            
                             <tr>
                                 <th>Height</th>
-                                <td>{Math.floor(pkmnObj.height / 3.048)}' {(pkmnObj.height % 3.048).round(1)}"</td>
+                                <td>{Math.floor(pkmnCard.height / 3.048)}' {(pkmnCard.height % 3.048).round(1)}"</td>
                             </tr>
                             <tr>
                                 <th>Weight</th>
-                                <td>{Math.round(pkmnObj.weight / 4.536)} lbs</td>
+                                <td>{Math.round(pkmnCard.weight / 4.536)} lbs</td>
                             </tr>
                         </tbody>
                     </table>
@@ -196,7 +201,7 @@ const PkmnCard = ({obj}, ref) => {
         </div>}
         
         {(modalOpen) &&
-        <PkmnCardModal name={name} pkmnObj={pkmnObj} handleModalToggle={handleModalToggle}/>}
+        <PkmnCardModal id={id} name={name} pkmnCard={pkmnCard} handleModalToggle={handleModalToggle} printTypes={printTypes}/>}
     </>
     );
 }
