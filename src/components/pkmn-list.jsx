@@ -9,12 +9,10 @@ function PokemonList({ pkmn, setLoaded}, ref) {
         // initialize pkmnlist whenever you receive a new pkmn obj from app
         let res = buildCards();
         setLoadedCards(res);
-        setLoaded(true);
-        
+        // setLoaded(true);
     }, [pkmn]);
 
     const buildCards = () => {
-        setLoaded(false)
         let cards = [];
         Object.entries(pkmn).map(([key, obj], i) => {
 

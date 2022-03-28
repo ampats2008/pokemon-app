@@ -9,6 +9,7 @@ import { useScrolledToBottom } from './components/hooks/useScrolledToBottom';
 
 import { getPkmnEndpointList } from './components/functions/getPkmnEndpointByName';
 
+
 //Tutorial link: https://youtu.be/o3ZUc7zH8BE
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
 
   // async call to api for first time
   const getPkmnEndpoint = async (pageUrl = `https://pokeapi.co/api/v2/pokemon?offset=0&limit=${itemCount}`) => {
+    setLoaded(false);
     await axios.get(pageUrl)
       .then(res => {
         // do the following with the response:
@@ -41,6 +43,7 @@ function App() {
           }
         });
 
+        setLoaded(true);
         
         setNextPageUrl(res.data.next);      // set prev page to stop user from clearing the grid too many times
 
@@ -109,8 +112,7 @@ function App() {
     // 1. useCallback fn to set as the target obj's ref attribute
     // 2. boolean var that gets set to true every time the target obj enters the viewport
   const [endOfScrollRef, needMoreItems] = useScrolledToBottom(
-    { root: null, rootMargin: "0px", threshold: 1.0 }, 
-    loaded);
+    { root: null, rootMargin: "0px", threshold: 1.0 });
 
   // Make call for more records when page is scrolled to bottom
   useEffect(() => {
@@ -134,7 +136,9 @@ function App() {
         width: '100%',
         textAlign: 'center',
         marginTop: '30px'
-      }}>The Pokédex</h1>
+      }}>
+        The Pokédex
+      </h1>
       <Pagination
         handleClearGrid={handleClearGrid}
         onSearch={handleSearch}
@@ -142,6 +146,8 @@ function App() {
         setItemCount={setItemCount}
       />
       <PokemonList pkmn={pkmn} setLoaded={setLoaded} loaded={loaded} ref={endOfScrollRef} />
+      {(!loaded) &&
+      <div style={{display: 'grid', placeItems: 'center'}}> <div className='pokeball'></div> </div>}
     </>
   );
 }

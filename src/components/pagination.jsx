@@ -47,7 +47,7 @@ function Pagination({handleClearGrid, onSearch, itemCount, setItemCount}) {
         <div
         className='pagination-searchgroup'>
             <input ref={searchNameFieldRef} id="searchNameField" type={'text'} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-            <Button onSearch={scrapeSearchTerm} type={'search'}>🔍</Button>
+            <Button onSearch={scrapeSearchTerm} type={'search'}>&#x1F50E;&#xFE0E;</Button>
         </div>
 
         <Button onClear={handleClearGrid} type={'clear'}>clear grid</Button>

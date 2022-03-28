@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
 // Infinite Scroll Code (custom hook)
-export const useScrolledToBottom = (options, loaded) => {
+export const useScrolledToBottom = (options) => {
 
   const observer = useRef();
   const [needMoreItems, setNeedMoreItems] = useState(false);
@@ -14,7 +14,7 @@ export const useScrolledToBottom = (options, loaded) => {
 
   const endOfScrollRef = useCallback(domNode => {
 
-    if (!loaded) return
+    if (!domNode) return
     if (observer.current) {
       // each time callback executes, disconnect observer from current endOfScrollRef 
       // and attach it to the new one
