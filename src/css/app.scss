@@ -110,6 +110,10 @@ label, select {font-family: $tff-body;}
   justify-content: center;
   gap: 10%;
 
+  & > * {
+    margin-top: 20px;
+  }
+
   &-searchgroup {
 
     input {
