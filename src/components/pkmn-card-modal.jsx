@@ -14,7 +14,8 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, printTypes
         genus,
         babyForm,
         middleForm,
-        finalEvolution
+        finalEvolution,
+        statsList
     } = pkmnCard;
 
     let sprites = {babyForm, middleForm, finalEvolution}; // will loop thru this to output sprites
@@ -80,7 +81,9 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, printTypes
                 </div>
 
                 <div className="modal-content-tabs">
-                   <ModalTabs types={types} />
+                    {/* Types - for type matchup tab panels */}
+                    {/* statsList - for BarChart tab panel */}
+                   <ModalTabs types={types} statsList={statsList} />
                 </div>
 
 

@@ -488,7 +488,27 @@ label, select {font-family: $tff-body;}
     h3 {
       margin: 30px 0 10px 0;
     }
+  }
 
+
+  .chartOrder {
+    margin: 20px 0;
+
+    &-label, &-select {
+      font-size: 0.9rem;
+    }
+  }
+
+  .chartSVG {
+
+    .rectGroup > rect:hover {
+      opacity: 0.6;
+    }
+
+    .xGroup > .tick, .yGroup > .tick, .yGroup > text{
+      text-transform: capitalize;
+      font-size: 0.9rem;
+    }
   }
 }
 

@@ -22,6 +22,7 @@ const PkmnCard = ({obj}, ref) => {
         babyForm: null,
         middleForm: null,
         finalEvolution: null,
+        statsList: [],
     });
 
     const [loaded, setLoaded] = useState(false);
@@ -70,7 +71,7 @@ const PkmnCard = ({obj}, ref) => {
 
     const getPkmnObj = async () => {
         
-        let {sprites, types, height, weight, species} = await getPkmnChars();
+        let {stats, sprites, types, height, weight, species} = await getPkmnChars();
 
         // call for species data
         let speciesRes = await getPkmnSpecies(species.url);
@@ -102,6 +103,16 @@ const PkmnCard = ({obj}, ref) => {
         
         let {babyForm, middleForm, finalEvolution} = evoChain; // Pkmn forms returned
 
+
+        // Format Stats arrayappropriately for use with BarChart from d3.js
+        let statsList = stats.map(stat => {
+            return { 
+                'stat': stat.stat.name, 
+                'base_stat': stat.base_stat,
+            }
+        });
+        // console.log(statsList)
+
         // for each form, do the following:
         Object.values(evoChain).map(async (form) => {
             if (form === undefined) return                               // do nothing if the form doesn't exist
@@ -119,7 +130,8 @@ const PkmnCard = ({obj}, ref) => {
             genus: genera[0].genus,
             babyForm,
             middleForm,
-            finalEvolution
+            finalEvolution,
+            statsList
         });
 
         setLoaded(true);
