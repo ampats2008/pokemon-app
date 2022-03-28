@@ -24,7 +24,7 @@ p {
 button {
     font-size: 3rem;
     padding: 0.25em 0.5em;
-    line-height: 0.5;
+    line-height: 1;
 }
 
 h1, h2, h3, h4, h5 {
@@ -286,6 +286,29 @@ label, select {font-family: $tff-body;}
     grid-template-columns: repeat(3, 1fr) 30px repeat(4, 1fr);
     grid-template-rows: min-content min-content 175px;
     gap: 20px 0px;
+
+    // basic responsive styles
+    @media screen and (max-width: 1000px) {
+      grid-template-areas:
+      'name name name name .. .. .. type'
+      'art art art art art art art art'
+      'evo evo evo evo evo evo evo evo'
+      'tabs tabs tabs tabs tabs tabs tabs tabs'
+      'desc desc desc desc desc desc desc desc'
+      ;
+
+      grid-template-rows: min-content;
+    }
+
+    @media screen and (max-width: 737px) {
+      grid-template-areas:
+      'name name name name name name name name'
+      'art art art art art art art art'
+      'evo evo evo evo evo evo evo evo'
+      'tabs tabs tabs tabs tabs tabs tabs tabs'
+      'desc desc desc desc desc desc desc desc'
+      ;
+    }
     
     padding: 30px;
 
@@ -293,6 +316,10 @@ label, select {font-family: $tff-body;}
       grid-area: type;
       display: flex;
       align-items: center;
+
+      @media screen and (max-width: 737px) {
+        display: none;
+      }
     }
 
     &-name {
@@ -358,7 +385,9 @@ label, select {font-family: $tff-body;}
         position: relative;  // allows z-index to function
         z-index: 1;
         max-height: 475px;
-        margin: 0 auto;
+        max-width: 100%;
+        object-fit: cover;
+        margin: auto;
       }
 
       &-shadow {
