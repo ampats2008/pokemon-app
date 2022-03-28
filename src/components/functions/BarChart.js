@@ -74,7 +74,7 @@ export const BarChart = (data, {
         .property("key", i => X[i])                           // for future transitions
         .call(position, i => xScale(X[i]), i => yScale(Y[i]))
         .call(rect => rect.append("title")
-            .text(i => [X[i], format(Y[i])].join("\n")))
+            .text(i => format(Y[i])))
         .attr("fill", i => colors[i])                       // set rect to one of colors in colors
         .attr("opacity", 0.85);
   
