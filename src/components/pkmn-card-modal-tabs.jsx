@@ -65,7 +65,8 @@ export function ModalTabs({types}) {
      let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index);
 
     // For each damage relation list in fullTypeMatchups, sort it and find duplicates:
-    // **Note: duplicate types in any list imply that a pkmn is 4x weak to or 4x strong against something
+
+    // **Note: a duplicate type within any given list imply that a pkmn is 4x weak to or 4x strong against that type
     Object.entries(fullTypeMatchups).map(([k, v]) => {
         fullTypeMatchups[k] = v.sort();
 
@@ -78,10 +79,21 @@ export function ModalTabs({types}) {
         }
     });
     
-    console.log(fullTypeMatchups)
+    console.log('fullTypeMatchups: ', fullTypeMatchups);
+
     // **Note: if the same type appears in a double list and a half list, it is calculated as normal effectiveness.
-
-
+    const normalDefTypes = [...new Set(fullTypeMatchups['double_damage_from'].filter(element => fullTypeMatchups['half_damage_from'].includes(element)))];
+    const normalAtkTypes = [...new Set(fullTypeMatchups['double_damage_to'].filter(element => fullTypeMatchups['half_damage_to'].includes(element)))];
+    
+    // Since types with normal effectiveness are unlisted, we need to delete the matches from the fullTypeMatchups Obj:
+    normalDefTypes.map(delType => {
+        fullTypeMatchups['double_damage_from'] = fullTypeMatchups['double_damage_from'].filter(element => (element !== delType));
+        fullTypeMatchups['half_damage_from'] = fullTypeMatchups['half_damage_from'].filter(element => (element !== delType));
+    });
+    normalAtkTypes.map(delType => {
+        fullTypeMatchups['double_damage_to'] = fullTypeMatchups['double_damage_to'].filter(element => (element !== delType));
+        fullTypeMatchups['half_damage_to'] = fullTypeMatchups['half_damage_to'].filter(element => (element !== delType));
+    });
 
     // filter damageRelations for attack/defense matchups
     Object.entries(fullTypeMatchups).map(([k, v]) => {
@@ -195,7 +207,7 @@ const TypeMatchups = ({panelType, matchups}) => {
                 heading = '4x Weak to';
                 order = 5;
             } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
-                heading = '4x Resistant to';
+                heading = '4x Resists';
                 order = 2;
             } else if (effectiveness.includes('double')) {
                 heading = 'Weak to';
@@ -209,14 +221,12 @@ const TypeMatchups = ({panelType, matchups}) => {
             }
 
         }
-
-        const Sortable = (props) => {return props.children};
         
         matchupsReturnList.push(
-            <Sortable order={order} key={`${heading}-${i}`}>
                 <div
                 key={`${heading}-${i}`}
                 className='typematchup-sec'
+                order={order}
                 >
                     <h3>{heading}:</h3>
                     <div className='typeBox typeBox-matchups'>
@@ -232,7 +242,6 @@ const TypeMatchups = ({panelType, matchups}) => {
                         </div>)}
                     </div>
                 </div>
-            </Sortable>
         );
 
     });
