@@ -30,7 +30,9 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, printTypes
 
             spritesList.push(
                 <div key={`${spriteObj.name}-sprite`} className="modal-content-evo-sprite" style={styleObj}>
-                    <img src={`${spriteObj.spriteGif}`} alt={`${spriteObj.name} sprite`} />
+                    {(spriteObj.spriteGif) 
+                        ? <img src={`${spriteObj.spriteGif}`} alt={`${spriteObj.name} sprite`}/>
+                        : <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png`} alt={`${spriteObj.name} sprite not found`} />}
                 </div>
             )
 

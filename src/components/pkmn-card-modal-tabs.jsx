@@ -1,6 +1,9 @@
 import * as React from 'react';
 import axios from 'axios';
 import { TabPanel, useTabs } from 'react-headless-tabs';
+
+import { Sort } from './functions/Sort'; // to sort typepanel-sec elements
+
 // Adapted from: https://github.com/Zertz/react-headless-tabs
 
 export function ModalTabs({types}) {
@@ -11,11 +14,13 @@ export function ModalTabs({types}) {
   ]);
 
   const [attackMatchups, setAttackMatchups] = React.useState({
+        'double_damage_to_dupes': [],
         'double_damage_to': [],
         'half_damage_to': [],
         'no_damage_to': [],
     });
   const [defenseMatchups, setDefenseMatchups] = React.useState({
+        'double_damage_from_dupes': [],
         'double_damage_from': [],
         'half_damage_from': [],
         'no_damage_from': [],
@@ -128,10 +133,10 @@ export function ModalTabs({types}) {
     </TabPanel>
 
     <TabPanel hidden={selectedTab !== 'Attack Matchups'}>
-        <TypeMatchups type="atk" matchups={attackMatchups} />
+        <TypeMatchups panelType="atk" matchups={attackMatchups} />
     </TabPanel>
     <TabPanel hidden={selectedTab !== 'Defense Matchups'}>
-        <TypeMatchups type="def" matchups={defenseMatchups}/>
+        <TypeMatchups panelType="def" matchups={defenseMatchups}/>
     </TabPanel>
     </div>
     </>
@@ -149,7 +154,7 @@ const TabSelector = ({ isActive, children, onClick, }) => (
 );
 
 // TypeMatchups component for TabPanels
-const TypeMatchups = ({type, matchups}) => {
+const TypeMatchups = ({panelType, matchups}) => {
 
     // console.log(matchups);
 
@@ -159,23 +164,60 @@ const TypeMatchups = ({type, matchups}) => {
         // don't bother making a section if there are no types to d
         if (typeList.length === 0) return
 
-        // set heading based on effectiveness
         let heading = '';
-        if (effectiveness.includes('double') && effectiveness.includes('dupes')) {
-            heading = '4x Effective';
-        } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
-            heading = '0.25x Effective';
-        } else if (effectiveness.includes('double')) {
-            heading = 'Super Effective';
-        } else if (effectiveness.includes('half')) {
-            heading = 'Not Very Effective';
-        } else if (effectiveness.includes('no')) {
-            heading = 'No Effect';
+        let order = 0;   // used as index for Sorting, from most to least effective
+        if (panelType === 'atk') {
+            // the wording of the headings will be different depending on the type of panel
+
+            // set heading based on effectiveness
+            if (effectiveness.includes('double') && effectiveness.includes('dupes')) {
+                heading = '4x Effective';
+                order = 1;
+            } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
+                heading = '0.25x Effective';
+                order = 4;
+            } else if (effectiveness.includes('double')) {
+                heading = '2x Effective';
+                order = 2;
+            } else if (effectiveness.includes('half')) {
+                heading = '0.5x Effective';
+                order = 3;
+            } else if (effectiveness.includes('no')) {
+                heading = 'No Effect On';
+                order = 5;
+            }
+
+        } else {
+            // def headings:
+
+            // set heading based on effectiveness
+            if (effectiveness.includes('double') && effectiveness.includes('dupes')) {
+                heading = '4x Weak to';
+                order = 5;
+            } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
+                heading = '4x Resistant to';
+                order = 2;
+            } else if (effectiveness.includes('double')) {
+                heading = 'Weak to';
+                order = 4;
+            } else if (effectiveness.includes('half')) {
+                heading = 'Resists';
+                order = 3;
+            } else if (effectiveness.includes('no')) {
+                heading = 'Immune to';
+                order = 1;
+            }
+
         }
 
-
+        const Sortable = (props) => {return props.children};
+        
         matchupsReturnList.push(
-                <div key={`${heading}-${i}`} className='typematchup-sec'>
+            <Sortable order={order} key={`${heading}-${i}`}>
+                <div
+                key={`${heading}-${i}`}
+                className='typematchup-sec'
+                >
                     <h3>{heading}:</h3>
                     <div className='typeBox typeBox-matchups'>
                         {typeList.map((type, i) => 
@@ -190,9 +232,10 @@ const TypeMatchups = ({type, matchups}) => {
                         </div>)}
                     </div>
                 </div>
+            </Sortable>
         );
 
-    })
+    });
 
-    return matchupsReturnList;
+    return <Sort by={'order'}>{matchupsReturnList}</Sort>;
 }

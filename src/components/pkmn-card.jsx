@@ -62,6 +62,7 @@ const PkmnCard = ({obj}, ref) => {
         if (spriteGif === null) { 
             // if an animated sprite doesn't exist for a pkmn, return the default one instead.
             spriteGif = res.data.sprites.front_default
+            console.log(spriteGif)
         }
 
         return spriteGif;
