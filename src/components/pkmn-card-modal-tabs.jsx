@@ -123,7 +123,7 @@ export function ModalTabs({types, statsList}) {
         // **Note: if the same type appears in a double list and a half list, it is calculated as normal effectiveness.
         const normalDefTypes = [...new Set(fullTypeMatchups['double_damage_from'].filter(element => fullTypeMatchups['half_damage_from'].includes(element)))];
         const normalAtkTypes = [...new Set(fullTypeMatchups['double_damage_to'].filter(element => fullTypeMatchups['half_damage_to'].includes(element)))];
-    
+        
         // Since types with normal effectiveness are unlisted, we need to delete the matches from the fullTypeMatchups Obj:
         normalDefTypes.map(delType => {
             fullTypeMatchups['double_damage_from'] = fullTypeMatchups['double_damage_from'].filter(element => (element !== delType));
@@ -133,6 +133,20 @@ export function ModalTabs({types, statsList}) {
             fullTypeMatchups['double_damage_to'] = fullTypeMatchups['double_damage_to'].filter(element => (element !== delType));
             fullTypeMatchups['half_damage_to'] = fullTypeMatchups['half_damage_to'].filter(element => (element !== delType));
         });
+
+        // **Note: if the same type appears in a "no effect" list and any other list, it is calculated as "no effect" only.
+        fullTypeMatchups['no_damage_to'].map(noEffectType => {
+            fullTypeMatchups['double_damage_to'] = fullTypeMatchups['double_damage_to'].filter(element => (element !== noEffectType));
+            fullTypeMatchups['half_damage_to'] = fullTypeMatchups['half_damage_to'].filter(element => (element !== noEffectType));
+        })
+        fullTypeMatchups['no_damage_from'].map(noEffectType => {
+            fullTypeMatchups['double_damage_from'] = fullTypeMatchups['double_damage_from'].filter(element => (element !== noEffectType));
+            fullTypeMatchups['half_damage_from'] = fullTypeMatchups['half_damage_from'].filter(element => (element !== noEffectType));
+        })
+
+        // ^^ the above four maps should be able to be abstracted further with a helper function, the logic is the same b/w all of them
+
+        console.log(fullTypeMatchups)
     
         // filter damageRelations for attack/defense matchups
         Object.entries(fullTypeMatchups).map(([k, v]) => {
