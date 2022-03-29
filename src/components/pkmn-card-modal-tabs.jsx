@@ -146,7 +146,7 @@ export function ModalTabs({types, statsList}) {
 
         // ^^ the above four maps should be able to be abstracted further with a helper function, the logic is the same b/w all of them
 
-        console.log(fullTypeMatchups)
+        // console.log(fullTypeMatchups)
     
         // filter damageRelations for attack/defense matchups
         Object.entries(fullTypeMatchups).map(([k, v]) => {

@@ -10,7 +10,7 @@ export const useGetPkmnNames = () => {
     // define async fn: api call for all pkmn names to check searchTerm against
     const getPkmnMasterNameList = async () => {
       // get all pkmn names
-      await axios.get(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${1126}`)
+      await axios.get(`https://pokeapi.co/api/v2/pokemon?offset=0&limit=${800}`)
         .then(res => {
           let data = [];
           res.data.results.map((result) => {

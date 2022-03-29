@@ -1,8 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ModalTabs } from "./pkmn-card-modal-tabs";
+import gsap from 'gsap/all';
 
 // Modal Component
-export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, printTypes}) => {
+export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, modalOpen, printTypes}) => {
+
+    let modalRef = useRef();
 
     // deconstruct pkmnObj
     let {
@@ -43,18 +46,43 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, printTypes
     }
 
     useEffect(()=>{
+        // Fade-In on mount
+
+        if (modalRef.current && modalOpen) {
+            // console.log(modalRef.current.children)
+            gsap.effects.fadeInFrom([modalRef.current, modalRef.current.children], {delay: 0.2, stagger: 0.1});
+        }
         console.log(`modal for ${name} open`);
 
-        return(() => {
-            console.log(`modal for ${name} closing`);
-        })
     }, [])
 
-    
+    // predefine fadeIn animation for cards
+    gsap.registerEffect({
+        name: "fadeInFrom",
+        effect: (targets, config) => {
+            return gsap.from(targets, {
+                duration: config.duration, 
+                autoAlpha: config.autoAlpha,
+                y: config.y,
+                delay: config.delay,
+                stagger: config.stagger,
+                onComplete: config.onComplete
+            }, '-=0.25');
+        },
+        defaults: {
+            duration: 0.5,
+            autoAlpha: 0,
+            delay: 0,
+            y: 20,           
+        },  // defaults get applied to any "config" object passed to the effect.
+        extendTimeline: true,       // Now you can call the effect directly on any GSAP timeline to have the 
+                                    // result immediately inserted in the position you define 
+                                    // (default is sequenced at the end)
+    });
 
     return(<>
-        <div className="modal" onClick={e => handleModalToggle()}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div id={`${name}-modal-${id}`} className="modal" onClick={e => handleModalToggle(e.target)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()} ref={modalRef}>
                 <div className='modal-content-name'>
                     <div className='modal-content-name-heading'>
                         <h4><span className='modal-content-name-heading-id'>{id}.</span> {name.toUpperCase().replace(/-+/g, ' ')}</h4>

@@ -2,27 +2,18 @@ import React, {useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import PokemonList from './components/pkmn-list';
 import Pagination from './components/pagination';
-
 import { useGetPkmnNames } from './components/hooks/useGetPkmnNames';
-// import { useToggle } from './components/hooks/useToggle';
 import { useScrolledToBottom } from './components/hooks/useScrolledToBottom';
-
 import { getPkmnEndpointList } from './components/functions/getPkmnEndpointByName';
 
-
-//Tutorial link: https://youtu.be/o3ZUc7zH8BE
-
 function App() {
-
-  // allows me to execute a useEffect hook only after first render
-  const didMountRef = useRef(false);
 
   const [pkmn, setPkmn] = useState([]);
   const [itemCount, setItemCount] = useState('12');
   const [nextPageUrl, setNextPageUrl] = useState(`https://pokeapi.co/api/v2/pokemon?offset=${itemCount}&limit=${itemCount}`);
 
   // state for pkmn list load status
-  const [loaded, setLoaded] = useState(false); // wait until pkmn card info is loaded to show the list
+  const [loaded, setLoaded] = useState(false); // show spinner while pkmn data is loading
 
   // state to toggle infinite scroll off when search results appear:
   const [infiniteScrollEnabled, setInfiniteScrollEnabled] = useState(true); 
@@ -42,17 +33,10 @@ function App() {
             return [...pkmn, ...newPkmn];
           }
         });
-
-        setLoaded(true);
         
         setNextPageUrl(res.data.next);      // set prev page to stop user from clearing the grid too many times
 
-        // if (!enabledEndofScrollRef) {
-        //   // if infinite scrolling is off, enable it.
-        //   setEnabledEndofScrollRef(true); 
-        // }
-
-      });
+      }).then(res => {setLoaded(true)});
   }
 
   // initialize with call to api
@@ -145,7 +129,7 @@ function App() {
         itemCount={itemCount}
         setItemCount={setItemCount}
       />
-      <PokemonList pkmn={pkmn} setLoaded={setLoaded} loaded={loaded} ref={endOfScrollRef} />
+      <PokemonList pkmn={pkmn} ref={endOfScrollRef} itemCount={itemCount} />
       {(!loaded) &&
       <div style={{display: 'grid', placeItems: 'center'}}> <div className='pokeball'></div> </div>}
     </>

@@ -1,10 +1,19 @@
-import React, {useState, useEffect, forwardRef} from 'react';
+import React, {useState, useEffect, forwardRef, useRef, useImperativeHandle} from 'react';
 import axios from 'axios';
 import { useToggle } from './hooks/useToggle';
 import { PkmnCardModal } from './pkmn-card-modal';
+import gsap from 'gsap';
+
+import { round } from './utils/Round'; // num rounding helper; says the value is not used, but it is...
 
 // Note: modal component below the card component
-const PkmnCard = ({obj}, ref) => {
+const PkmnCard = ({obj, setLoadedCardsCount, loadedCardsCount, itemCount}, forwardRef) => {
+
+    const cardAnimationRef = useRef();
+    useImperativeHandle(forwardRef, () => cardAnimationRef.current); 
+        // merges the forwardedRef with localRef:
+            // local ref is for gsap-animations
+            // forwardedRef is applied to last card (only) as the intersectionObserver target
 
     // parse obj.url for pokedex id: between two fwd slashes at end of url --> /id/
 
@@ -25,7 +34,7 @@ const PkmnCard = ({obj}, ref) => {
         statsList: [],
     });
 
-    const [loaded, setLoaded] = useState(false);
+    const [renderReady, setReadyToRender] = useState(false);
 
     const getPkmnChars = async () => {
         // call for additional pkmn characteristics
@@ -63,7 +72,7 @@ const PkmnCard = ({obj}, ref) => {
         if (spriteGif === null) { 
             // if an animated sprite doesn't exist for a pkmn, return the default one instead.
             spriteGif = res.data.sprites.front_default
-            console.log(spriteGif)
+            // console.log(spriteGif)
         }
 
         return spriteGif;
@@ -134,24 +143,27 @@ const PkmnCard = ({obj}, ref) => {
             statsList
         });
 
-        setLoaded(true);
+        setReadyToRender(true);
     }
 
     useEffect(() => {
         getPkmnObj();
     }, [])
 
-    // Rounding helper function
-    Number.prototype.round = function(places) {
-        return +(Math.round(this + "e+" + places)  + "e-" + places);
-    }
-
     // Modal Code:
     const [modalOpen, toggleModal] = useToggle();
 
-    const handleModalToggle = (e) => {
-        document.body.classList.toggle('overflowY-disabled');     // toggle scrolling on body        
-        toggleModal();                                          // toggle modal show/hide state
+    const handleModalToggle = (target) => {
+        document.body.classList.toggle('overflowY-disabled');     // toggle scrolling on body
+        if (modalOpen) {
+            // hide modal
+            gsap.to(target, {autoAlpha: 0, onComplete: () => {toggleModal()}});
+
+        } else {
+            //show modal
+            toggleModal();                                          
+        }
+        
     }
 
     const printTypes = () => {
@@ -171,10 +183,21 @@ const PkmnCard = ({obj}, ref) => {
         );
     }
 
+    // GSAP FADE-IN ANIMATION LOGIC
+
+    // tell pkmnList when this card is ready to render
+    useEffect(() => {
+        if (renderReady) setLoadedCardsCount(prevCount => prevCount + 1);
+    }, [renderReady]);
+
+    const [fadeCompleted, setFadeCompleted] = useState(false);
+
     return(
     <>
-        {(loaded) &&
-        <div className='card flip-card' ref={ref}>
+        {(renderReady) &&
+        <div className={`card flip-card ${(!fadeCompleted) && 'tweenMe'}`} ref={cardAnimationRef} 
+        style={{visibility: 'hidden', opacity: 0, transform: 'translateY(20px)'}}
+        >
             <div className="flip-card-inner">
 
                 <div className="flip-card-front">
@@ -199,7 +222,7 @@ const PkmnCard = ({obj}, ref) => {
                             </tr>
                             <tr>
                                 <th>Weight</th>
-                                <td>{Math.round(pkmnCard.weight / 4.536)} lbs</td>
+                                <td>{(pkmnCard.weight / 4.536).round(0)} lbs</td>
                             </tr>
                         </tbody>
                     </table>
@@ -215,7 +238,7 @@ const PkmnCard = ({obj}, ref) => {
         </div>}
         
         {(modalOpen) &&
-        <PkmnCardModal id={id} name={name} pkmnCard={pkmnCard} handleModalToggle={handleModalToggle} printTypes={printTypes}/>}
+        <PkmnCardModal id={id} name={name} pkmnCard={pkmnCard} handleModalToggle={handleModalToggle} modalOpen={modalOpen} printTypes={printTypes}/>}
     </>
     );
 }
