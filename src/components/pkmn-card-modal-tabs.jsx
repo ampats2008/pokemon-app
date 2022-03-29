@@ -63,7 +63,7 @@ export function ModalTabs({types, statsList}) {
             yDomain: [0, 100],
             yLabel: '↑ Stat',
             width: barChartRef.current.offsetWidth,
-            height: 400,
+            height: 350,
             colors: ['#EB3323', '#E28544', '#F2D154', '#6F91E9', '#8BC561', '#E66488'], // array of colors from games
             duration: 750,
         });

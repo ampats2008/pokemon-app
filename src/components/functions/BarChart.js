@@ -8,7 +8,7 @@ export const BarChart = (data, {
     y = d => d, // given d in data, returns the (quantitative) y-value
     marginTop = 40, // the top margin, in pixels
     marginRight = 0, // the right margin, in pixels
-    marginBottom = 60, // the bottom margin, in pixels
+    marginBottom = 30, // the bottom margin, in pixels
     marginLeft = 40, // the left margin, in pixels
     width = 640, // the outer width of the chart, in pixels
     height = 400, // the outer height of the chart, in pixels
