@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { ModalTabs } from "./pkmn-card-modal-tabs";
 import gsap from 'gsap/all';
 
@@ -45,14 +45,14 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, modalOpen,
         return spritesList;
     }
 
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         // Fade-In on mount
 
         if (modalRef.current && modalOpen) {
             // console.log(modalRef.current.children)
             gsap.effects.fadeInFrom([modalRef.current, modalRef.current.children], {delay: 0.2, stagger: 0.1});
         }
-        console.log(`modal for ${name} open`);
+        // console.log(`modal for ${name} open`);
 
     }, [])
 
