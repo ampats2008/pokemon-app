@@ -66,6 +66,7 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, modalOpen,
                 y: config.y,
                 delay: config.delay,
                 stagger: config.stagger,
+                clearProps: 'all',
                 onComplete: config.onComplete
             }, '-=0.25');
         },

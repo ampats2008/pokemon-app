@@ -154,14 +154,17 @@ const PkmnCard = ({obj, setLoadedCardsCount, loadedCardsCount, itemCount}, forwa
     const [modalOpen, toggleModal] = useToggle();
 
     const handleModalToggle = (target) => {
-        document.body.classList.toggle('overflowY-disabled');     // toggle scrolling on body
         if (modalOpen) {
             // hide modal
-            gsap.to(target, {autoAlpha: 0, onComplete: () => {toggleModal()}});
+            gsap.to(target, {autoAlpha: 0, ease: 'power2.inOut', onComplete: () => {
+                document.body.classList.toggle('overflowY-disabled');     // toggle scrolling on body
+                toggleModal(); 
+            }});
 
         } else {
             //show modal
-            toggleModal();                                          
+            document.body.classList.toggle('overflowY-disabled');     // toggle scrolling on body
+            toggleModal();
         }
         
     }
