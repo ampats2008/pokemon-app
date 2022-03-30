@@ -107,7 +107,7 @@ export function ModalTabs({types, statsList}) {
     
         // For each damage relation list in fullTypeMatchups, sort it and find duplicates:
     
-        // **Note: a duplicate type within any given list imply that a pkmn is 4x weak to or 4x strong against that type
+        // **Note: a duplicate type within any given list implies that a pkmn is 4x weak to or 4x strong against that type
         Object.entries(fullTypeMatchups).map(([k, v]) => {
             fullTypeMatchups[k] = v.sort();
     
