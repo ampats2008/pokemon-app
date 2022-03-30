@@ -1,70 +1,48 @@
-# Getting Started with Create React App
+# Pokédex App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Built with React, SASS, d3.js, GSAP, and Axios.
 
-## Available Scripts
+This web app visualizes data from the [PokeAPI](https://pokeapi.co/docs/v2#pokemon).
 
-In the project directory, you can run:
+## Notable Features:
 
-### `npm start`
+### Home page:
+- Items per page select box:
+    > Allows the user to select how many resources the API should return from each GET request.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Client-side search field:
+    > When the search button is clicked, the app fetches all Pokémon whose name includes the search term. For example, a search for *arc* would return both **Arc**anine and G**arc**homp.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Infinite scrolling:
+    > On the home page, if the user scrolls down to the end of the grid of Pokemon cards, more will automatically be called from the API and populated underneath the current list. This was implemented using the IntersectionObserver API inside a custom React hook (that I called useInfiniteScroll).
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Clear grid button:
+    > On click, this button allows the user to reset the grid of Pokémon cards to the original state when the page was loaded. This is useful for clearing search results or for clearing a long list of cards.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- GSAP card loading animations:
+    > Used React useState hooks to wait for a complete set of Pokemon cards to be inserted into the DOM before playing the fade-in animation. This way, each card fades in one after another (staggered).
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Pokémon modal:
+-  Stats Panel:
+    > This panel contains a bar chart (from D3.js) that displays a Pokémon's stats. The user can sort the bars in three ways: (1) alphabetical order (by Stat name), (2) descending order (by Stat level, aka. quantity), or (3) ascending order (by Stat level). The chart also has clean transition animations between each state.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Attack / Defense Matchup Panels:
+    > These panels display the type matchups for the selected Pokémon. In short, similar to *Rock, Paper, Scissors,* certain Pokemon types have advantages over Pokemon types. [Here](https://pokemondb.net/type/dual) is a more detailed explanation of how type matchups are calculated in Pokémon.
+    
+    > The API does not return this data for each Pokemon. It only returns the Pokemon's type. Therefore, I had to calculate the type matchups myself behind the scenes. If you peek at the source code, under *pkmn-card-modal-tabs.jsx,* you'll find comments that outline my thought process in calculating the type matchups:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+    ```
+    // **Note: a duplicate type within any given list implies that a pkmn is 4x weak to or 4x strong against that type.
+    ...
+    // **Note: if the same type appears in a 'double' list and a 'half' list, it is calculated as normal effectiveness.
+    ...
+    // **Note: if the same type appears in a "no effect" list and any other list, it is calculated as "no effect" only.
+    ```
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Overall, I enjoyed putting together this little app as it allowed me to get more comfortable using React, React Hooks, and working with asynchronous data.
