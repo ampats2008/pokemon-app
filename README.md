@@ -45,4 +45,4 @@ This web app visualizes data from the [PokeAPI](https://pokeapi.co/docs/v2#pokem
     // **Note: if the same type appears in a "no effect" list and any other list, it is calculated as "no effect" only.
     ```
 
-Overall, I enjoyed putting together this little app as it allowed me to get more comfortable using React, React Hooks, and working with asynchronous data in JavaScript.
+Overall, I enjoyed putting together this little app as it allowed me to get more comfortable using React, React Hooks, and working with asynchronous data.
