@@ -78,11 +78,13 @@ function App() {
   }
 
   // Clear the <PokemonList />
-  const handleClearGrid = (newItemCount = itemCount) => {
-
+  const handleClearGrid = (e) => {
     // if handleClearGrid is called by clear grid button, it will default to the current Item Count state.
     // if handleClearGrid is called by the item count select box, it will use the value the user selected in the select box, 
     // and then reassign itemCount to that value
+
+    let newItemCount = (!e.target.value) ? itemCount : e.target.value;
+    
 
     setInfiniteScrollEnabled(true);
     setPkmn([]);
@@ -127,7 +129,6 @@ function App() {
         handleClearGrid={handleClearGrid}
         onSearch={handleSearch}
         itemCount={itemCount}
-        setItemCount={setItemCount}
       />
       <PokemonList pkmn={pkmn} ref={endOfScrollRef} itemCount={itemCount} />
       {(!loaded) &&

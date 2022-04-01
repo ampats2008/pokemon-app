@@ -1,14 +1,22 @@
 import * as React from 'react';
 import axios from 'axios';
 import { TabPanel, useTabs } from 'react-headless-tabs';
+import { TabSelector } from './pkmn-card-modal-tabs-tabselector';
+import {TypeMatchups} from './pkmn-card-modal-tabs-typematchups';
 
-import { Sort } from './functions/Sort'; // to sort typepanel-sec elements
 import { BarChart } from './functions/BarChart';
 import * as d3 from 'd3';
 
 // Adapted from: https://github.com/Zertz/react-headless-tabs
 
-export function ModalTabs({types, statsList}) {
+type Props = {
+    types: string[],
+    statsList: [
+        {stat:string, base_stat:number},
+    ],
+}
+
+export function ModalTabs({types, statsList}:Props) {
     const [selectedTab, setSelectedTab] = useTabs([
     'Stats',
     'Attack Matchups',
@@ -38,10 +46,10 @@ export function ModalTabs({types, statsList}) {
 
     // update bar chart order when selectbox changes
 
-    const getChartSortFn = (chartOrder) => {
-        if (chartOrder === 'alpha-asc') return (a, b) => d3.ascending(a.stat, b.stat);
-        if (chartOrder === 'Ys-asc') return (a, b) => d3.ascending(a.base_stat, b.base_stat);
-        if (chartOrder === 'Ys-dsc') return (a, b) => d3.descending(a.base_stat, b.base_stat);
+    const getChartSortFn = (chartOrder:string) => {
+        if (chartOrder === 'alpha-asc') return (a:{stat:string}, b:{stat:string}) => d3.ascending(a.stat, b.stat);
+        if (chartOrder === 'Ys-asc') return (a:{base_stat:number}, b:{base_stat:number}) => d3.ascending(a.base_stat, b.base_stat);
+        if (chartOrder === 'Ys-dsc') return (a:{base_stat:number}, b:{base_stat:number}) => d3.descending(a.base_stat, b.base_stat);
         return   // return null if chartOrder is none of these
     }
 
@@ -54,11 +62,11 @@ export function ModalTabs({types, statsList}) {
         } 
     }, [chartOrder])
 
-    const buildBarChart = (statsList) => {
-        // pass data into d3 BarChart.js function
-        const chart = BarChart(statsList, {
-            x: d => d.stat,
-            y: d => d.base_stat,
+    const buildBarChart = (statsList : [{stat:string, base_stat:number}]) => {
+
+        const barChartArgs : Object = {
+            x: (d:{stat:string}) => d.stat,
+            y: (d:{base_stat:number}) => d.base_stat,
             xPadding: 0.3,
             yDomain: [0, 100],
             yLabel: '↑ Stat',
@@ -66,7 +74,10 @@ export function ModalTabs({types, statsList}) {
             height: 350,
             colors: ['#EB3323', '#E28544', '#F2D154', '#6F91E9', '#8BC561', '#E66488'], // array of colors from games
             duration: 750,
-        });
+        };
+
+        // pass data into d3 BarChart.js function
+        const chart = BarChart(statsList, barChartArgs);
 
         return chart;
     }
@@ -236,98 +247,4 @@ export function ModalTabs({types, statsList}) {
     </div>
     </>
     );
-}
-
-// wrapper component for tabs
-const TabSelector = ({ isActive, children, onClick, }) => (
-  <button
-    className={` ${isActive ? 'tab tab-active' : 'tab'} `}
-    onClick={onClick}
-  >
-    {children}
-  </button>
-);
-
-// TypeMatchups component for TabPanels
-const TypeMatchups = ({panelType, matchups}) => {
-
-    // console.log(matchups);
-
-    let matchupsReturnList = [];
-
-    Object.entries(matchups).map(([effectiveness, typeList], i) => {
-        // don't bother making a section if there are no types to d
-        if (typeList.length === 0) return
-
-        let heading = '';
-        let order = 0;   // used as index for Sorting, from most to least effective
-        if (panelType === 'atk') {
-            // the wording of the headings will be different depending on the type of panel
-
-            // set heading based on effectiveness
-            if (effectiveness.includes('double') && effectiveness.includes('dupes')) {
-                heading = '4x Effective';
-                order = 1;
-            } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
-                heading = '0.25x Effective';
-                order = 4;
-            } else if (effectiveness.includes('double')) {
-                heading = '2x Effective';
-                order = 2;
-            } else if (effectiveness.includes('half')) {
-                heading = '0.5x Effective';
-                order = 3;
-            } else if (effectiveness.includes('no')) {
-                heading = 'No Effect On';
-                order = 5;
-            }
-
-        } else {
-            // def headings:
-
-            // set heading based on effectiveness
-            if (effectiveness.includes('double') && effectiveness.includes('dupes')) {
-                heading = '4x Weak to';
-                order = 5;
-            } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
-                heading = '4x Resists';
-                order = 2;
-            } else if (effectiveness.includes('double')) {
-                heading = 'Weak to';
-                order = 4;
-            } else if (effectiveness.includes('half')) {
-                heading = 'Resists';
-                order = 3;
-            } else if (effectiveness.includes('no')) {
-                heading = 'Immune to';
-                order = 1;
-            }
-
-        }
-        
-        matchupsReturnList.push(
-                <div
-                key={`${heading}-${i}`}
-                className='typematchup-sec'
-                order={order}
-                >
-                    <h3>{heading}:</h3>
-                    <div className='typeBox typeBox-matchups'>
-                        {typeList.map((type, i) => 
-                        <div key={`${i}-type-${type}`} style={{display: 'flex'}}>
-                            <span
-                            className={`typeBox-type type-${type}`} 
-                            style={
-                                // increase contrast of text for certain pkmn types
-                                (['electric', 'ice', 'fairy', 'grass', 'ground', 'bug'].includes(type.toLowerCase())) ? {color: '#363535'} : {}}
-                                >{type}
-                            </span>
-                        </div>)}
-                    </div>
-                </div>
-        );
-
-    });
-
-    return <Sort by={'order'}>{matchupsReturnList}</Sort>;
 }
