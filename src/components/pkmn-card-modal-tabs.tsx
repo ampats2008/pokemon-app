@@ -8,9 +8,15 @@ import { BarChart } from './functions/BarChart';
 import * as d3 from 'd3';
 
 // Adapted from: https://github.com/Zertz/react-headless-tabs
+type Types = [
+    {
+    slot:number,
+    type: {name: string, url: string}
+    }
+];
 
 type Props = {
-    types: string[],
+    types: Types,
     statsList: [
         {stat:string, base_stat:number},
     ],
@@ -24,7 +30,7 @@ export function ModalTabs({types, statsList}:Props) {
     ]);
 
     // Chart Refs/State
-    const barChartRef = React.useRef();
+    const barChartRef = React.useRef<HTMLDivElement>(null);
     const [chartOrder, setChartOrder] = React.useState(''); // updates the order of the bar chart rects
 
     // insert bar chart on load:
@@ -58,31 +64,38 @@ export function ModalTabs({types, statsList}:Props) {
         if (barChartRef.current && !chartNotLoaded) {
             let sortFn = getChartSortFn(chartOrder);
             // update chart using sort function
-            barChartRef.current.firstChild.update(d3.sort(statsList, sortFn), {yDomain: [0, 100]});
+            // make sure that the SVG exists and that it has the update function attached before invoking it
+            if (barChartRef.current.children.length !== 0) {
+                if (barChartRef.current.children[0].hasOwnProperty('update')) {
+                    // Disabling type-checking on next line for now.
+                    // TS claims that that the update property doesn't exist on firstChild, 
+                    // but I checked that it exists already:
+                    // @ts-ignore
+                    barChartRef.current.children[0].update(d3.sort(statsList, sortFn), {yDomain: [0, 100]});
+                }
+            }
         } 
+            
     }, [chartOrder])
 
     const buildBarChart = (statsList : [{stat:string, base_stat:number}]) => {
 
-        const barChartArgs : Object = {
+        // pass data into d3 BarChart.js function
+        const chart = BarChart(statsList, {
             x: (d:{stat:string}) => d.stat,
             y: (d:{base_stat:number}) => d.base_stat,
             xPadding: 0.3,
             yDomain: [0, 100],
             yLabel: '↑ Stat',
-            width: barChartRef.current.offsetWidth,
+            width: barChartRef.current!.offsetWidth,
             height: 350,
             colors: ['#EB3323', '#E28544', '#F2D154', '#6F91E9', '#8BC561', '#E66488'], // array of colors from games
             duration: 750,
-        };
-
-        // pass data into d3 BarChart.js function
-        const chart = BarChart(statsList, barChartArgs);
+        });
 
         return chart;
     }
-
-    const getDamageRelations = async (types) => {
+    const getDamageRelations = async (types: Types) => {
 
         let typeResList = await Promise.all(
             // for each type, return type data as promise
@@ -90,7 +103,9 @@ export function ModalTabs({types, statsList}:Props) {
         );
     
         // make object with keys from both types:
-        let fullTypeMatchups = {
+        let fullTypeMatchups : {
+            [key: string]: string[],
+        } = {
             'double_damage_from': [],
             'double_damage_to': [],
             'half_damage_from': [],
@@ -102,19 +117,19 @@ export function ModalTabs({types, statsList}:Props) {
         // merge objects into fullTypeMatchups:
         typeResList.map(res => {
             // for each damage relations object:
-            Object.entries(res.data.damage_relations).map(([k, v]) => {
+            Object.entries(res.data.damage_relations).map(([k, v]:[string, any]) => {
                 // if key matches key from fullTypeMatchups, add the value to its list
                 Object.keys(fullTypeMatchups).map(masterKey => {
                     if (k === masterKey) {
                         // spread the type names from v into fullTypeMatchups.
-                        fullTypeMatchups[masterKey].push(...v.map(v => v.name));
+                        fullTypeMatchups[masterKey].push(...v.map( (v :{name:string}) => v.name) );
                     }
                 });
             });
         });
     
-            // def fn to find duplicate strings in each array
-            let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index);
+        // def fn to find duplicate strings in each array
+        let findDuplicates = (arr:any[]) => arr.filter((item, index) => arr.indexOf(item) != index);
     
         // For each damage relation list in fullTypeMatchups, sort it and find duplicates:
     
@@ -162,7 +177,7 @@ export function ModalTabs({types, statsList}:Props) {
         // filter damageRelations for attack/defense matchups
         Object.entries(fullTypeMatchups).map(([k, v]) => {
             // make new key/value pair obj
-            let kv = {};
+            let kv : {[k:string]:string[]} = {};
             kv[k] = v;
     
             if (k.includes('to')) {

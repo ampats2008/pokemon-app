@@ -1,11 +1,42 @@
 import { useLayoutEffect, useRef } from "react";
 import { ModalTabs } from "./pkmn-card-modal-tabs";
-import gsap from 'gsap/all';
+import gsap from 'gsap';
+
+type pkmnForm = {
+    name: string,
+    spriteGif: string,
+}
+
+type Props = {
+    id:string,
+    name:string,
+    pkmnCard : {
+        artwork: string | undefined,
+        types: [
+            {
+            slot:number,
+            type: {name: string, url: string}
+            }
+        ],
+        height: number,
+        weight: number,
+        description: string,
+        genus: string,
+        babyForm: pkmnForm | null,
+        middleForm: pkmnForm | null,
+        finalEvolution: pkmnForm | null,
+        statsList : [ {stat:string, base_stat:number} ],
+    },
+    // onClick event handler:
+    handleModalToggle : (e:EventTarget) => void, 
+    modalOpen : boolean,
+    printTypes : () => JSX.Element,
+}
 
 // Modal Component
-export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, modalOpen, printTypes}) => {
+export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, modalOpen, printTypes}:Props) => {
 
-    let modalRef = useRef();
+    let modalRef = useRef<HTMLDivElement>(null);
 
     // deconstruct pkmnObj
     let {
@@ -23,14 +54,14 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, modalOpen,
 
     let sprites = {babyForm, middleForm, finalEvolution}; // will loop thru this to output sprites
 
-    const printSprites = (sprites) => {
+    const printSprites = (sprites : {babyForm: pkmnForm | null; middleForm: pkmnForm | null; finalEvolution: pkmnForm | null;}) => {
 
-        let spritesList = [];
+        let spritesList : JSX.Element[] = [];
         Object.entries(sprites).map(([form, spriteObj]) => {
 
             if (!spriteObj) return // don't include undefined objects in spritesList
 
-            let styleObj = (spriteObj.name === name) ? {'--modal-sprite-bgcolor' : 'rgba(255, 255, 255, 0.08)'} : {'--modal-sprite-bgcolor' : 'rgba(0,0,0, 0.1)'};
+            let styleObj : {[key: string] : string} = (spriteObj.name === name) ? {'--modal-sprite-bgcolor' : 'rgba(255, 255, 255, 0.08)'} : {'--modal-sprite-bgcolor' : 'rgba(0,0,0, 0.1)'};
 
             spritesList.push(
                 <div key={`${spriteObj.name}-sprite`} className="modal-content-evo-sprite" style={styleObj}>
@@ -59,7 +90,8 @@ export const PkmnCardModal = ({id, name, pkmnCard, handleModalToggle, modalOpen,
     // predefine fadeIn animation for cards
     gsap.registerEffect({
         name: "fadeInFrom",
-        effect: (targets, config) => {
+        effect: (targets:gsap.TweenTarget, config:any) => {
+            //@ts-ignore -- thinks that second arg of .from() should be a number?
             return gsap.from(targets, {
                 duration: config.duration, 
                 autoAlpha: config.autoAlpha,

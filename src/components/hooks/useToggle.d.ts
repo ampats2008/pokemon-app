@@ -1,0 +1,1 @@
+export const useToggle : (initial: any) => any[]
