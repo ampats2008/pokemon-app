@@ -2,38 +2,41 @@ import React, {useState, useEffect, forwardRef, useRef} from 'react';
 import PkmnCard from './pkmn-card';
 import gsap from 'gsap/all';
 
-function PokemonList({ pkmn, itemCount}, ref) {
+type Props = {
+    pkmn : [{
+        name: string,
+        url: string,
+    }] | [],
+    itemCount : string,
+}
 
-    const [loadedCards, setLoadedCards] = useState([]);
+function PokemonList({pkmn, itemCount} : Props, lastCardRef:React.Ref<HTMLDivElement> | undefined) {
+
+    const [loadedCards, setLoadedCards] = useState<JSX.Element[]>([]);
 
     useEffect(() => {
         // initialize pkmnlist whenever you receive a new pkmn obj from app
-        let res = buildCards();
+        let res : JSX.Element[] = buildCards();
         setLoadedCards(res);
-        // console.log(pkmn)
     }, [pkmn]);
 
     const buildCards = () => {
-        let cards = [];
+        let cards : JSX.Element[] = [];
         Object.entries(pkmn).map(([key, obj], i) => {
 
             if (i + 1 === pkmn.length) {
                 // if this is the last card, attach the intersection observer ref for infinite scrolling
                 cards.push(<PkmnCard
-                    ref={ref}
+                    ref={lastCardRef}
                     key={`${key}__${obj.name}`}
                     obj={obj}
                     setLoadedCardsCount={setLoadedCardsCount}
-                    loadedCardsCount={loadedCardsCount}
-                    itemCount={itemCount}
                     />);
             } else {
                 cards.push(<PkmnCard
                     key={`${key}__${obj.name}`}
                     obj={obj}
                     setLoadedCardsCount={setLoadedCardsCount}
-                    loadedCardsCount={loadedCardsCount}
-                    itemCount={itemCount}
                     />);
             }
 
@@ -59,6 +62,7 @@ function PokemonList({ pkmn, itemCount}, ref) {
             gsap.effects.fadeIn(q(".tweenMe"), {stagger: {
                 each: 0.1,
                 onComplete: function(){
+                    //@ts-ignore -- this property does exist, but it is not visible to TS
                     this.targets()[0].classList.remove('tweenMe');
                 },
             }})
@@ -69,7 +73,8 @@ function PokemonList({ pkmn, itemCount}, ref) {
     // predefine fadeIn animation for cards
     gsap.registerEffect({
         name: "fadeIn",
-        effect: (targets, config) => {
+        effect: (targets:any, config:any) => {
+             //@ts-ignore -- thinks that second arg of .from() should be a number?
             return gsap.to(targets, {
                 duration: config.duration, 
                 autoAlpha: config.autoAlpha,

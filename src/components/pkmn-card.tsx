@@ -9,9 +9,7 @@ import {} from './utils/Round';
 
 type Props = {
     obj: {name:string,url:string},
-    setLoadedCardsCount: (a: string | Function) => void,
-    loadedCardsCount: number,
-    itemCount: string,
+    setLoadedCardsCount: React.Dispatch<React.SetStateAction<number>>,
 }
 
 type pkmnForm = {
@@ -20,7 +18,7 @@ type pkmnForm = {
 }
 
 // Note: modal component below the card component
-const PkmnCard = ({obj, setLoadedCardsCount, loadedCardsCount, itemCount}:Props, forwardRef:any) => {
+const PkmnCard = ({obj, setLoadedCardsCount}:Props, forwardRef:any) => {
 
     const cardAnimationRef = useRef<HTMLDivElement>(null);
     useImperativeHandle(forwardRef, () => cardAnimationRef.current); 
@@ -136,7 +134,7 @@ const PkmnCard = ({obj, setLoadedCardsCount, loadedCardsCount, itemCount}:Props,
         
         let {babyForm, middleForm, finalEvolution} = evoChain; // Pkmn forms returned
         
-        console.log(middleForm);
+        // console.log(middleForm);
 
         // Format Stats array appropriately for use with BarChart from d3.js
         let statsList = stats.map((stat: {stat: {name:string}, base_stat:number}) => {

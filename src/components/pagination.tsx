@@ -3,7 +3,7 @@ import { Button } from './pagination-btn';
 
 type PaginationProps = {
     // handleClearGrid is invoked for onChange event and onClick event
-    handleClearGrid: (e: React.ChangeEvent<HTMLSelectElement> | React.MouseEvent<Element>) => void,
+    handleClearGrid: (e?: React.ChangeEvent<HTMLSelectElement>) => void,
     onSearch: (str:string) => void,
     itemCount: string,
 };
@@ -38,7 +38,7 @@ function Pagination({handleClearGrid, onSearch, itemCount}: PaginationProps) {
                 <Button onClick={scrapeSearchTerm} >&#x1F50E;&#xFE0E;</Button>
             </div>
 
-            <Button onClick={(e) => handleClearGrid(e)} >clear grid</Button>
+            <Button onClick={() => handleClearGrid()} >clear grid</Button>
         </div>
      );
 }

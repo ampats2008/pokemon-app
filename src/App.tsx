@@ -8,7 +8,7 @@ import { getPkmnEndpointList } from './components/functions/getPkmnEndpointByNam
 
 function App() {
 
-  const [pkmn, setPkmn] = useState([]);
+  const [pkmn, setPkmn] = useState<[{name: string, url: string}] | []>([]);
   const [itemCount, setItemCount] = useState('12');
   const [nextPageUrl, setNextPageUrl] = useState(`https://pokeapi.co/api/v2/pokemon?offset=${itemCount}&limit=${itemCount}`);
 
@@ -50,7 +50,7 @@ function App() {
   const pkmnMasterNameList = useGetPkmnNames();
 
   // onClick search button handler
-  const handleSearch = (searchTerm) => {
+  const handleSearch = (searchTerm : string) => {
       if (searchTerm != '') {
 
         let foundNames = pkmnMasterNameList.sort().filter( name => {
@@ -61,7 +61,7 @@ function App() {
 
         if (foundNames.length > 0 ) {  
 
-          getPkmnEndpointList(foundNames).then( res => {
+          getPkmnEndpointList(foundNames).then( (res:[{name: string, url: string}]) => {
             // toggle
             setInfiniteScrollEnabled(false); // disable infinite scroll
             setPkmn(res);
@@ -78,13 +78,12 @@ function App() {
   }
 
   // Clear the <PokemonList />
-  const handleClearGrid = (e) => {
+  const handleClearGrid : (e?: React.ChangeEvent<HTMLSelectElement>) => void = (e) => {
     // if handleClearGrid is called by clear grid button, it will default to the current Item Count state.
     // if handleClearGrid is called by the item count select box, it will use the value the user selected in the select box, 
-    // and then reassign itemCount to that value
+    // and then reassign itemCount to that value 
 
-    let newItemCount = (!e.target.value) ? itemCount : e.target.value;
-    
+    let newItemCount = (e !== undefined) ? e.target.value : itemCount;
 
     setInfiniteScrollEnabled(true);
     setPkmn([]);
