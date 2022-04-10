@@ -13,14 +13,14 @@ type PaginationProps = {
   handleClearGrid: (e?: React.ChangeEvent<HTMLSelectElement>) => void
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>
   searchTerm: string
-  itemCount: number
+  itemsPerPage: number
 }
 
 function Pagination({
   handleClearGrid,
   setSearchTerm,
   searchTerm,
-  itemCount,
+  itemsPerPage,
 }: PaginationProps) {
   return (
     <header>
@@ -30,15 +30,15 @@ function Pagination({
           Items per page:
           <select
             className="pagination-select"
-            value={itemCount}
+            value={itemsPerPage}
             onChange={(e) => handleClearGrid(e)}
             style={{
               marginLeft: "30px",
             }}
           >
             {[2, 3, 4, 5, 6, 7].map((i) => (
-              <option key={`dropdown_items_${i * 6}`} value={i * 6}>
-                {i * 6}
+              <option key={`dropdown_items_${i * 6}`} value={i * 5}>
+                {i * 5}
               </option>
             ))}
           </select>

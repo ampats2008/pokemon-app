@@ -3,11 +3,11 @@ import axios from "axios"
 import PokemonList from "./components/pkmn-list"
 import Pagination from "./components/pagination"
 import { useScrolledToBottom } from "./components/hooks/useScrolledToBottom"
-import { getPkmnEndpointList } from "./components/functions/getPkmnEndpointByName"
 
 function App() {
   const [pkmn, setPkmn] = useState<[{ name: string; url: string }] | []>([])
-  const [itemCount, setItemCount] = useState(12)
+  const [itemCount, setItemCount] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
 
   // state for pkmn list load status
   const [loaded, setLoaded] = useState(false) // show spinner while pkmn data is loading
@@ -56,9 +56,10 @@ function App() {
     // if handleClearGrid is called by the item count select box, it will use the value the user selected in the select box,
     // and then reassign itemCount to that value
 
-    let newItemCount = e !== undefined ? e.target.value : 12
+    let newItemCount = e !== undefined ? e.target.value : itemsPerPage
 
     setItemCount(Number(newItemCount)) // reassign itemCount to user input
+    setItemsPerPage(Number(newItemCount))
     setSearchTerm("")
   }
 
@@ -74,7 +75,7 @@ function App() {
 
   // reveal more records when user reaches end of card grid
   useEffect(() => {
-    if (needMoreItems) setItemCount((prev) => prev + itemCount)
+    if (needMoreItems) setItemCount((prev) => prev + itemsPerPage)
   }, [needMoreItems])
 
   return (
@@ -83,7 +84,7 @@ function App() {
         handleClearGrid={handleClearGrid}
         setSearchTerm={setSearchTerm}
         searchTerm={searchTerm}
-        itemCount={itemCount}
+        itemsPerPage={itemsPerPage}
       />
       <PokemonList
         pkmn={pkmn}

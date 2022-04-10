@@ -243,22 +243,13 @@ const PkmnCard = ({ obj, setLoadedCardsCount }: Props, forwardRef: any) => {
     )
   }
 
-  // GSAP FADE-IN ANIMATION LOGIC
-
-  // tell pkmnList when this card is ready to render
-  //   useEffect(() => {
-  //     if (renderReady) setLoadedCardsCount((prevCount: number) => prevCount + 1)
-  //   }, [renderReady])
-
-  //   const [fadeCompleted, setFadeCompleted] = useState(false)
-
   return (
     <>
       {
         <div
-          className={`card flip-card`} //   ${!fadeCompleted && "tweenMe"}
+          className={`card flip-card fadeIn`}
           ref={forwardRef}
-          
+          style={{opacity: 0, transform: 'translateY(-5px)'}}
         >
           <div className="flip-card-inner">
             <div className="flip-card-front">
