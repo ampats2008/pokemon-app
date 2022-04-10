@@ -48,6 +48,7 @@ function Pagination({
           type={"text"}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Find a Pokémon..."
         />
 
         <Button onClick={() => handleClearGrid()}>clear grid</Button>
