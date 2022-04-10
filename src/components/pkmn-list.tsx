@@ -1,6 +1,5 @@
 import React, { useState, useEffect, forwardRef, useRef } from "react"
 import PkmnCard from "./pkmn-card"
-import gsap from "gsap/all"
 
 type Props = {
   pkmn:
