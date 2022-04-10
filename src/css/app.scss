@@ -66,12 +66,6 @@ label, select {font-family: $tff-body;}
   margin: 30px;
   min-width: 250px;
 
-  // @for $i from 1 through 50 {
-  //   &:nth-child(#{$i}) {
-  //     animation-delay: 200ms * $i;
-  //   }
-  // }
-
   &-id {
     position: absolute;
     bottom: 0;
@@ -109,6 +103,7 @@ label, select {font-family: $tff-body;}
 
 .fadeIn {
   animation: fadeIn 500ms ease-in-out forwards;
+  animation-delay: calc(var(--animation-order) * 100ms);
 }
 
 @keyframes fadeIn {

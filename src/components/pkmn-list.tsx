@@ -13,10 +13,11 @@ type Props = {
     | []
   itemCount: number
   searchTerm: string
+  itemsPerPage: number
 }
 
 function PokemonList(
-  { pkmn, itemCount, searchTerm }: Props,
+  { pkmn, itemCount, itemsPerPage, searchTerm }: Props,
   lastCardRef: React.Ref<HTMLDivElement> | undefined
 ) {
   return (
@@ -28,17 +29,26 @@ function PokemonList(
           )
           .slice(0, itemCount)
           .map(([key, obj], i) => {
-            if (i === (itemCount - 1)) {
+            if (i === itemCount - 1) {
               // if this is the last card, attach the intersection observer ref for infinite scrolling
               return (
                 <PkmnCard
                   ref={lastCardRef}
                   key={`${key}__${obj.name}`}
                   obj={obj}
+                  animationOrder={i}
+                  itemsPerPage={itemsPerPage}
                 />
               )
             } else {
-              return <PkmnCard key={`${key}__${obj.name}`} obj={obj} />
+              return (
+                <PkmnCard
+                  key={`${key}__${obj.name}`}
+                  obj={obj}
+                  animationOrder={i}
+                  itemsPerPage={itemsPerPage}
+                />
+              )
             }
           })}
       </div>

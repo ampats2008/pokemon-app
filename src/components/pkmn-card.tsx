@@ -16,7 +16,8 @@ import {} from "./utils/Round"
 
 type Props = {
   obj: { name: string; url: string }
-  setLoadedCardsCount?: React.Dispatch<React.SetStateAction<number>>
+  animationOrder: number
+  itemsPerPage: number
 }
 
 type pkmnForm = {
@@ -25,7 +26,7 @@ type pkmnForm = {
 }
 
 // Note: modal component below the card component
-const PkmnCard = ({ obj, setLoadedCardsCount }: Props, forwardRef: any) => {
+const PkmnCard = ({ obj, animationOrder, itemsPerPage }: Props, forwardRef: any) => {
   // const cardAnimationRef = useRef<HTMLDivElement>(null)
   // useImperativeHandle(forwardRef, () => cardAnimationRef.current)
   // merges the forwardedRef with localRef:
@@ -243,13 +244,22 @@ const PkmnCard = ({ obj, setLoadedCardsCount }: Props, forwardRef: any) => {
     )
   }
 
+  // Calc stagger style custom CSS prop -- tells fadeIn animation how 
+  // long to delay the animation to produce a stagger effect
+  const orderNum = (animationOrder + 1) % itemsPerPage
+  const staggerStyle = {"--animation-order": (orderNum === 0) ? itemsPerPage : orderNum } as React.CSSProperties
+
   return (
     <>
       {
         <div
           className={`card flip-card fadeIn`}
           ref={forwardRef}
-          style={{opacity: 0, transform: 'translateY(-5px)'}}
+          style={{
+            opacity: 0,
+            transform: "translateY(-5px)",
+            ...staggerStyle
+          }}
         >
           <div className="flip-card-inner">
             <div className="flip-card-front">

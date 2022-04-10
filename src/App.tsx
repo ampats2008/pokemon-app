@@ -91,6 +91,7 @@ function App() {
         searchTerm={searchTerm}
         ref={endOfScrollRef}
         itemCount={itemCount}
+        itemsPerPage={itemsPerPage}
       />
       {!loaded && (
         <div style={{ display: "grid", placeItems: "center" }}>
