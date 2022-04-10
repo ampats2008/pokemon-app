@@ -1,14 +1,28 @@
 import * as React from 'react';
 import axios from 'axios';
 import { TabPanel, useTabs } from 'react-headless-tabs';
+import { TabSelector } from './pkmn-card-modal-tabs-tabselector';
+import {TypeMatchups} from './pkmn-card-modal-tabs-typematchups';
 
-import { Sort } from './functions/Sort'; // to sort typepanel-sec elements
 import { BarChart } from './functions/BarChart';
 import * as d3 from 'd3';
 
 // Adapted from: https://github.com/Zertz/react-headless-tabs
+type Types = [
+    {
+    slot:number,
+    type: {name: string, url: string}
+    }
+];
 
-export function ModalTabs({types, statsList}) {
+type Props = {
+    types: Types,
+    statsList: [
+        {stat:string, base_stat:number},
+    ],
+}
+
+export function ModalTabs({types, statsList}:Props) {
     const [selectedTab, setSelectedTab] = useTabs([
     'Stats',
     'Attack Matchups',
@@ -16,7 +30,7 @@ export function ModalTabs({types, statsList}) {
     ]);
 
     // Chart Refs/State
-    const barChartRef = React.useRef();
+    const barChartRef = React.useRef<HTMLDivElement>(null);
     const [chartOrder, setChartOrder] = React.useState(''); // updates the order of the bar chart rects
 
     // insert bar chart on load:
@@ -38,10 +52,10 @@ export function ModalTabs({types, statsList}) {
 
     // update bar chart order when selectbox changes
 
-    const getChartSortFn = (chartOrder) => {
-        if (chartOrder === 'alpha-asc') return (a, b) => d3.ascending(a.stat, b.stat);
-        if (chartOrder === 'Ys-asc') return (a, b) => d3.ascending(a.base_stat, b.base_stat);
-        if (chartOrder === 'Ys-dsc') return (a, b) => d3.descending(a.base_stat, b.base_stat);
+    const getChartSortFn = (chartOrder:string) => {
+        if (chartOrder === 'alpha-asc') return (a:{stat:string}, b:{stat:string}) => d3.ascending(a.stat, b.stat);
+        if (chartOrder === 'Ys-asc') return (a:{base_stat:number}, b:{base_stat:number}) => d3.ascending(a.base_stat, b.base_stat);
+        if (chartOrder === 'Ys-dsc') return (a:{base_stat:number}, b:{base_stat:number}) => d3.descending(a.base_stat, b.base_stat);
         return   // return null if chartOrder is none of these
     }
 
@@ -50,19 +64,30 @@ export function ModalTabs({types, statsList}) {
         if (barChartRef.current && !chartNotLoaded) {
             let sortFn = getChartSortFn(chartOrder);
             // update chart using sort function
-            barChartRef.current.firstChild.update(d3.sort(statsList, sortFn), {yDomain: [0, 100]});
+            // make sure that the SVG exists and that it has the update function attached before invoking it
+            if (barChartRef.current.children.length !== 0) {
+                if (barChartRef.current.children[0].hasOwnProperty('update')) {
+                    // Disabling type-checking on next line for now.
+                    // TS claims that that the update property doesn't exist on firstChild, 
+                    // but I checked that it exists already:
+                    // @ts-ignore
+                    barChartRef.current.children[0].update(d3.sort(statsList, sortFn), {yDomain: [0, 100]});
+                }
+            }
         } 
+            
     }, [chartOrder])
 
-    const buildBarChart = (statsList) => {
+    const buildBarChart = (statsList : [{stat:string, base_stat:number}]) => {
+
         // pass data into d3 BarChart.js function
         const chart = BarChart(statsList, {
-            x: d => d.stat,
-            y: d => d.base_stat,
+            x: (d:{stat:string}) => d.stat,
+            y: (d:{base_stat:number}) => d.base_stat,
             xPadding: 0.3,
             yDomain: [0, 100],
             yLabel: '↑ Stat',
-            width: barChartRef.current.offsetWidth,
+            width: barChartRef.current!.offsetWidth,
             height: 350,
             colors: ['#EB3323', '#E28544', '#F2D154', '#6F91E9', '#8BC561', '#E66488'], // array of colors from games
             duration: 750,
@@ -70,8 +95,7 @@ export function ModalTabs({types, statsList}) {
 
         return chart;
     }
-
-    const getDamageRelations = async (types) => {
+    const getDamageRelations = async (types: Types) => {
 
         let typeResList = await Promise.all(
             // for each type, return type data as promise
@@ -79,7 +103,9 @@ export function ModalTabs({types, statsList}) {
         );
     
         // make object with keys from both types:
-        let fullTypeMatchups = {
+        let fullTypeMatchups : {
+            [key: string]: string[],
+        } = {
             'double_damage_from': [],
             'double_damage_to': [],
             'half_damage_from': [],
@@ -91,19 +117,19 @@ export function ModalTabs({types, statsList}) {
         // merge objects into fullTypeMatchups:
         typeResList.map(res => {
             // for each damage relations object:
-            Object.entries(res.data.damage_relations).map(([k, v]) => {
+            Object.entries(res.data.damage_relations).map(([k, v]:[string, any]) => {
                 // if key matches key from fullTypeMatchups, add the value to its list
                 Object.keys(fullTypeMatchups).map(masterKey => {
                     if (k === masterKey) {
                         // spread the type names from v into fullTypeMatchups.
-                        fullTypeMatchups[masterKey].push(...v.map(v => v.name));
+                        fullTypeMatchups[masterKey].push(...v.map( (v :{name:string}) => v.name) );
                     }
                 });
             });
         });
     
-            // def fn to find duplicate strings in each array
-            let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index);
+        // def fn to find duplicate strings in each array
+        let findDuplicates = (arr:any[]) => arr.filter((item, index) => arr.indexOf(item) != index);
     
         // For each damage relation list in fullTypeMatchups, sort it and find duplicates:
     
@@ -151,7 +177,7 @@ export function ModalTabs({types, statsList}) {
         // filter damageRelations for attack/defense matchups
         Object.entries(fullTypeMatchups).map(([k, v]) => {
             // make new key/value pair obj
-            let kv = {};
+            let kv : {[k:string]:string[]} = {};
             kv[k] = v;
     
             if (k.includes('to')) {
@@ -236,98 +262,4 @@ export function ModalTabs({types, statsList}) {
     </div>
     </>
     );
-}
-
-// wrapper component for tabs
-const TabSelector = ({ isActive, children, onClick, }) => (
-  <button
-    className={` ${isActive ? 'tab tab-active' : 'tab'} `}
-    onClick={onClick}
-  >
-    {children}
-  </button>
-);
-
-// TypeMatchups component for TabPanels
-const TypeMatchups = ({panelType, matchups}) => {
-
-    // console.log(matchups);
-
-    let matchupsReturnList = [];
-
-    Object.entries(matchups).map(([effectiveness, typeList], i) => {
-        // don't bother making a section if there are no types to d
-        if (typeList.length === 0) return
-
-        let heading = '';
-        let order = 0;   // used as index for Sorting, from most to least effective
-        if (panelType === 'atk') {
-            // the wording of the headings will be different depending on the type of panel
-
-            // set heading based on effectiveness
-            if (effectiveness.includes('double') && effectiveness.includes('dupes')) {
-                heading = '4x Effective';
-                order = 1;
-            } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
-                heading = '0.25x Effective';
-                order = 4;
-            } else if (effectiveness.includes('double')) {
-                heading = '2x Effective';
-                order = 2;
-            } else if (effectiveness.includes('half')) {
-                heading = '0.5x Effective';
-                order = 3;
-            } else if (effectiveness.includes('no')) {
-                heading = 'No Effect On';
-                order = 5;
-            }
-
-        } else {
-            // def headings:
-
-            // set heading based on effectiveness
-            if (effectiveness.includes('double') && effectiveness.includes('dupes')) {
-                heading = '4x Weak to';
-                order = 5;
-            } else if (effectiveness.includes('half') && effectiveness.includes('dupes')) {
-                heading = '4x Resists';
-                order = 2;
-            } else if (effectiveness.includes('double')) {
-                heading = 'Weak to';
-                order = 4;
-            } else if (effectiveness.includes('half')) {
-                heading = 'Resists';
-                order = 3;
-            } else if (effectiveness.includes('no')) {
-                heading = 'Immune to';
-                order = 1;
-            }
-
-        }
-        
-        matchupsReturnList.push(
-                <div
-                key={`${heading}-${i}`}
-                className='typematchup-sec'
-                order={order}
-                >
-                    <h3>{heading}:</h3>
-                    <div className='typeBox typeBox-matchups'>
-                        {typeList.map((type, i) => 
-                        <div key={`${i}-type-${type}`} style={{display: 'flex'}}>
-                            <span
-                            className={`typeBox-type type-${type}`} 
-                            style={
-                                // increase contrast of text for certain pkmn types
-                                (['electric', 'ice', 'fairy', 'grass', 'ground', 'bug'].includes(type.toLowerCase())) ? {color: '#363535'} : {}}
-                                >{type}
-                            </span>
-                        </div>)}
-                    </div>
-                </div>
-        );
-
-    });
-
-    return <Sort by={'order'}>{matchupsReturnList}</Sort>;
 }
