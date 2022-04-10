@@ -12,7 +12,7 @@ This web app visualizes data from the [PokeAPI](https://pokeapi.co/docs/v2#pokem
 
 
 - Client-side search field:
-    > When the search button is clicked, the app fetches all Pokémon whose name includes the search term. For example, a search for *arc* would return both **Arc**anine and G**arc**homp.
+    > When the user types in the search field, the app filters the Pokémon array down to those whose name includes the search term. For example, a search for *arc* would return both **Arc**anine and G**arc**homp.
 
 
 - Infinite scrolling:
