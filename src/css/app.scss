@@ -51,20 +51,19 @@ small, .text_small {font-size: 0.8rem;}
 
 label, select {font-family: $tff-body;}
 
+
 .cardCont {
   display: flex;
   flex-wrap: wrap;
-  width: 90%;
+  width: 100%;
   margin: 0 auto;
   justify-content: center;
-
-  gap: 2%;
 }
 
 .card {
   flex: 0 0 15%;
-  margin-bottom: 50px;
-  min-width: 250px;
+  margin: 30px;
+  max-width: 250px;
 
   &-id {
     position: absolute;
@@ -101,26 +100,33 @@ label, select {font-family: $tff-body;}
   }
 }
 
-.pagination {
-
+header {
   width: 90%;
-  margin: 0 auto 50px auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10%;
-
-  & > * {
-    margin-top: 20px;
+  margin: 30px auto;
+   
+  @media screen and (min-width: 1200px) {
+    display: flex;
+    justify-content: space-between;
   }
 
-  &-searchgroup {
+}
 
-    input {
-      font-size: 1.2rem;
-      padding: 0.35em 0.5em;
-      margin-right: 20px;
-    };
+.pagination {
+  text-align: center;
+  
+  @media screen and (min-width: 1200px) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  & > * {
+    margin: 20px;
+  }
+
+  input {
+    font-size: 1.2rem;
+    padding: 0.5em 1em;
   }
 
   &-label, &-select {
@@ -595,6 +601,11 @@ label, select {font-family: $tff-body;}
   100%{
     transform: rotate(360deg);
   }
+}
+
+#searchNameField {
+  border-radius: 30px;
+  width: 300px;
 }
 
 
