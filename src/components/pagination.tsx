@@ -47,6 +47,7 @@ function Pagination({
           id="searchNameField"
           type={"text"}
           value={searchTerm}
+          placeholder="Find a Pokémon..."
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
